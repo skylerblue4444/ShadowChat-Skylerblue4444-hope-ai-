@@ -14,7 +14,8 @@ import {
   CreditCard, Settings, Cpu, Server, Zap, GitBranch,
   Database, Workflow, AlertTriangle, Globe, Navigation, Flag,
   ChevronLeft, ChevronRight, Menu, X, Activity, Coins,
-  TrendingUp, Trophy, Calendar, Code2, ToggleLeft, Star, Users, Spade
+  TrendingUp, Trophy, Calendar, Code2, ToggleLeft, Star, Users, Spade,
+  Radio, DollarSign, Share2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -30,13 +31,16 @@ const NAV = [
   { section: "SOCIAL & MEDIA", items: [
     { path: "/dating",         icon: Heart,          label: "Dating / Match" },
     { path: "/messages",       icon: Video,          label: "Messaging" },
+    { path: "/live",           icon: Radio,          label: "Live & Video",    badge: "LIVE", badgeType: "red" },
     { path: "/creator-studio", icon: Clapperboard,   label: "Creator Studio" },
+    { path: "/social-graph",   icon: Share2,         label: "Social Graph" },
     { path: "/nft",            icon: Network,        label: "NFT Gallery" },
   ]},
   { section: "COMMERCE & FINANCE", items: [
     { path: "/marketplace",   icon: ShoppingBag,     label: "Marketplace" },
     { path: "/wallet",        icon: Wallet,          label: "Wallet / Finance" },
     { path: "/exchange",      icon: CreditCard,      label: "Exchange / DEX" },
+    { path: "/payments",      icon: DollarSign,      label: "Payments Hub" },
   ]},
   { section: "AI & INTELLIGENCE", items: [
     { path: "/ai-core",      icon: Brain,     label: "HOPE AI Core",    badge: "AI",   badgeType: "cyan" },
@@ -60,6 +64,7 @@ const NAV = [
     { path: "/moderation",    icon: AlertTriangle, label: "Moderation Layer" },
     { path: "/api",           icon: Code2,         label: "API Ecosystem" },
     { path: "/features",      icon: ToggleLeft,    label: "Feature Flags" },
+    { path: "/sandbox",        icon: FlaskConical,  label: "Sandbox Zone" },
     { path: "/blackjack",     icon: Spade,         label: "Blackjack Casino", badge: "🃏", badgeType: "count" },
     { path: "/admin",         icon: Shield,        label: "Admin Panel",  badge: "ROOT", badgeType: "red" },
     { path: "/settings",      icon: Settings,      label: "Settings" },

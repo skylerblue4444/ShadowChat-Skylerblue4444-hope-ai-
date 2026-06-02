@@ -660,3 +660,172 @@ export type NFT = typeof nfts.$inferSelect;
 export type Listing = typeof listings.$inferSelect;
 export type AIAgent = typeof aiAgents.$inferSelect;
 export type Notification = typeof notifications.$inferSelect;
+
+
+// ═══════════════════════════════════════════════════════════════
+// DATING / MATCHING SYSTEM
+// ═══════════════════════════════════════════════════════════════
+export const datingProfiles = mysqlTable("datingProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  bio: text("bio"),
+  interests: json("interests"),
+  lookingFor: mysqlEnum("lookingFor", ["friendship", "dating", "networking", "all"]).default("all"),
+  ageRange: varchar("ageRange", { length: 20 }).default("18-99"),
+  location: varchar("location", { length: 128 }),
+  photos: json("photos"),
+  isActive: boolean("isActive").default(true),
+  compatibilityVector: json("compatibilityVector"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const matches = mysqlTable("matches", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  targetId: int("targetId").notNull(),
+  action: mysqlEnum("action", ["like", "pass", "superlike"]).notNull(),
+  isMatch: boolean("isMatch").default(false),
+  compatibilityScore: decimal("compatibilityScore", { precision: 5, scale: 2 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE VIDEO / STREAMING SYSTEM
+// ═══════════════════════════════════════════════════════════════
+export const liveStreams = mysqlTable("liveStreams", {
+  id: int("id").autoincrement().primaryKey(),
+  hostId: int("hostId").notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  description: text("description"),
+  category: mysqlEnum("category", ["gaming", "music", "talk", "education", "creative", "other"]).default("other"),
+  status: mysqlEnum("status", ["scheduled", "live", "ended", "archived"]).default("scheduled"),
+  viewerCount: int("viewerCount").default(0),
+  peakViewers: int("peakViewers").default(0),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 512 }),
+  streamKey: varchar("streamKey", { length: 128 }),
+  startedAt: timestamp("startedAt"),
+  endedAt: timestamp("endedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const streamMessages = mysqlTable("streamMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("streamId").notNull(),
+  userId: int("userId").notNull(),
+  content: text("content").notNull(),
+  type: mysqlEnum("type", ["chat", "tip", "system", "mod"]).default("chat"),
+  amount: decimal("amount", { precision: 12, scale: 2 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// CREATOR STUDIO
+// ═══════════════════════════════════════════════════════════════
+export const creatorProfiles = mysqlTable("creatorProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  displayName: varchar("displayName", { length: 128 }),
+  category: mysqlEnum("category", ["influencer", "artist", "educator", "musician", "developer", "other"]).default("other"),
+  totalEarnings: decimal("totalEarnings", { precision: 14, scale: 2 }).default("0.00"),
+  subscriberCount: int("subscriberCount").default(0),
+  monthlyRevenue: decimal("monthlyRevenue", { precision: 12, scale: 2 }).default("0.00"),
+  payoutAddress: varchar("payoutAddress", { length: 256 }),
+  isVerified: boolean("isVerified").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const scheduledPosts = mysqlTable("scheduledPosts", {
+  id: int("id").autoincrement().primaryKey(),
+  creatorId: int("creatorId").notNull(),
+  content: text("content").notNull(),
+  mediaUrls: json("mediaUrls"),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  status: mysqlEnum("status", ["pending", "published", "failed", "cancelled"]).default("pending"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// PAYMENTS / BILLING HUB
+// ═══════════════════════════════════════════════════════════════
+export const invoices = mysqlTable("invoices", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 10 }).default("USD"),
+  status: mysqlEnum("status", ["pending", "paid", "failed", "refunded"]).default("pending"),
+  description: text("description"),
+  dueDate: timestamp("dueDate"),
+  paidAt: timestamp("paidAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const payouts = mysqlTable("payouts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  amount: decimal("amount", { precision: 14, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 10 }).default("USD"),
+  method: mysqlEnum("method", ["crypto", "bank", "paypal", "stripe"]).default("crypto"),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending"),
+  walletAddress: varchar("walletAddress", { length: 256 }),
+  txHash: varchar("txHash", { length: 256 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SOCIAL GRAPH / NETWORK
+// ═══════════════════════════════════════════════════════════════
+export const socialCircles = mysqlTable("socialCircles", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  description: text("description"),
+  memberCount: int("memberCount").default(0),
+  isPublic: boolean("isPublic").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const circleMemberships = mysqlTable("circleMemberships", {
+  id: int("id").autoincrement().primaryKey(),
+  circleId: int("circleId").notNull(),
+  userId: int("userId").notNull(),
+  role: mysqlEnum("role", ["member", "moderator", "admin"]).default("member"),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// MODERATION / TRUST & SAFETY
+// ═══════════════════════════════════════════════════════════════
+export const moderationReports = mysqlTable("moderationReports", {
+  id: int("id").autoincrement().primaryKey(),
+  reporterId: int("reporterId").notNull(),
+  targetType: mysqlEnum("targetType", ["user", "post", "listing", "message", "stream"]).notNull(),
+  targetId: int("targetId").notNull(),
+  reason: mysqlEnum("reason", ["spam", "harassment", "fraud", "inappropriate", "copyright", "other"]).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["pending", "reviewing", "resolved", "dismissed"]).default("pending"),
+  resolvedBy: int("resolvedBy"),
+  resolution: text("resolution"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const userRiskScores = mysqlTable("userRiskScores", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  score: decimal("score", { precision: 5, scale: 2 }).default("0.00"),
+  factors: json("factors"),
+  lastCalculated: timestamp("lastCalculated").defaultNow().notNull(),
+});
+
+// ═══════════════════════════════════════════════════════════════
+// SANDBOX / EXPERIMENTAL ZONE
+// ═══════════════════════════════════════════════════════════════
+export const sandboxEnvironments = mysqlTable("sandboxEnvironments", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  type: mysqlEnum("type", ["ai_test", "trading_sim", "feature_preview", "behavior_model"]).default("ai_test"),
+  config: json("config"),
+  status: mysqlEnum("status", ["active", "paused", "archived"]).default("active"),
+  results: json("results"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});

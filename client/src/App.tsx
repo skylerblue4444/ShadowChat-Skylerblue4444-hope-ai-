@@ -39,6 +39,10 @@ const APIEcosystem    = lazy(() => import("./pages/APIEcosystem"));
 const NavigationSystem= lazy(() => import("./pages/NavigationSystem"));
 const FeatureFlags    = lazy(() => import("./pages/FeatureFlags"));
 const Blackjack       = lazy(() => import("./pages/Blackjack"));
+const LiveVideo       = lazy(() => import("./pages/LiveVideo"));
+const SocialGraph     = lazy(() => import("./pages/SocialGraph"));
+const PaymentsHub     = lazy(() => import("./pages/PaymentsHub"));
+const SandboxZone     = lazy(() => import("./pages/SandboxZone"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -89,6 +93,10 @@ function Router() {
           <Route path="/features"       component={FeatureFlags} />
           <Route path="/feature-flags"  component={FeatureFlags} />
           <Route path="/blackjack"      component={Blackjack} />
+          <Route path="/live"           component={LiveVideo} />
+          <Route path="/social-graph"   component={SocialGraph} />
+          <Route path="/payments"       component={PaymentsHub} />
+          <Route path="/sandbox"        component={SandboxZone} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

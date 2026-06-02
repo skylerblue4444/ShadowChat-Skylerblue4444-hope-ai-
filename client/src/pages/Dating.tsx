@@ -3,27 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Heart, X, Star, MapPin, Zap, Brain, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 
-const PROFILES = [
-  {id:"d1",name:"Alex Rivera",age:28,bio:"Crypto trader & AI enthusiast. SKYCOIN whale 🐋",match:98,traits:["DeFi","AI","Travel"],distance:"2mi",verified:true,color:"from-cyan-500 to-blue-600"},
-  {id:"d2",name:"Maya Chen",age:26,bio:"Web3 developer. Building the future one block at a time.",match:94,traits:["Web3","Music","Art"],distance:"5mi",verified:true,color:"from-purple-500 to-pink-600"},
-  {id:"d3",name:"Jordan Wells",age:31,bio:"Startup founder. HOPE AI believer. Digital nomad.",match:91,traits:["Startup","Tech","Yoga"],distance:"1mi",verified:false,color:"from-green-500 to-teal-600"},
-  {id:"d4",name:"Zara Knight",age:29,bio:"NFT artist & governance voter. DAO maxi.",match:87,traits:["NFT","DAO","Art"],distance:"8mi",verified:true,color:"from-amber-500 to-orange-600"},
-];
+const COLORS = ["from-cyan-500 to-blue-600","from-purple-500 to-pink-600","from-green-500 to-teal-600","from-amber-500 to-orange-600"];
 
 export default function Dating() {
   const [idx, setIdx] = useState(0);
-  const [matches, setMatches] = useState<typeof PROFILES>([]);
   const [dir, setDir] = useState<"left"|"right"|null>(null);
-  const profile = PROFILES[idx % PROFILES.length];
+  const { data: profiles } = trpc.dating.discover.useQuery({ limit: 20 });
+  const { data: matchList } = trpc.dating.myMatches.useQuery();
+  const swipeMutation = trpc.dating.swipe.useMutation({ onSuccess: (r) => { if(r.isMatch) toast.success("It's a match!"); } });
+  const matches = matchList || [];
+  const allProfiles = profiles || [];
+  const profile = allProfiles[idx % (allProfiles.length || 1)];
 
   const swipe = (direction: "left"|"right") => {
+    if(!profile) return;
     setDir(direction);
     setTimeout(()=>{
-      if(direction==="right"){
-        setMatches(p=>[...p,profile]);
-        toast.success(`🎉 Matched with ${profile.name}! (${profile.match}% compatibility)`);
-      }
+      swipeMutation.mutate({ targetId: profile.userId, action: direction==="right"?"like":"pass" });
       setIdx(p=>p+1);
       setDir(null);
     },300);
@@ -53,31 +51,31 @@ export default function Dating() {
               className="w-full max-w-sm"
             >
               <div className="rounded-2xl overflow-hidden border border-white/[0.1] bg-[oklch(0.11_0.01_265)]">
-                <div className={cn("h-64 bg-gradient-to-br flex items-end p-4", profile.color)}>
+                <div className={cn("h-64 bg-gradient-to-br flex items-end p-4", COLORS[idx % COLORS.length])}>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-2xl font-bold text-white">{profile.name}</span>
-                      <span className="text-white/80 text-lg">{profile.age}</span>
+                      <span className="text-white/80 text-lg"></span>
                     </div>
                     <div className="flex items-center gap-2 text-white/80 text-[12px]">
-                      <MapPin className="w-3 h-3"/> {profile.distance}
+                      <MapPin className="w-3 h-3"/> {profile.location || "nearby"}
                     </div>
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <Brain className="w-4 h-4 text-cyan-400"/>
                       <span className="text-[12px] text-white font-semibold">AI Match Score</span>
                     </div>
-                    <span className="text-xl font-bold text-cyan-400 font-mono">{profile.match}%</span>
+                    <span className="text-xl font-bold text-cyan-400 font-mono">{profile.compatibilityScore}%</span>
                   </div>
                   <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full" style={{width:`${profile.match}%`}}/>
+                    <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full" style={{width:`${profile.compatibilityScore}%`}}/>
                   </div>
-                  <p className="text-[12px] text-white/70">{profile.bio}</p>
+                  <p className="text-[12px] text-white/70">{profile.bio || "ShadowChat enthusiast"}</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {profile.traits.map(t=>(
+                    {((profile.interests as string[]) || []).map((t: string)=>(
                       <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/60">{t}</span>
                     ))}
                   </div>
@@ -101,14 +99,14 @@ export default function Dating() {
             <div className="text-center py-8 text-white/30 text-[12px]">Start swiping to see matches here</div>
           ) : (
             <div className="space-y-2">
-              {matches.map(m=>(
+              {matches.map((m: any)=>(
                 <div key={m.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors cursor-pointer">
-                  <div className={cn("w-9 h-9 rounded-full bg-gradient-to-br flex items-center justify-center text-sm font-bold text-white shrink-0", m.color)}>
-                    {m.name[0]}
+                  <div className={cn("w-9 h-9 rounded-full bg-gradient-to-br flex items-center justify-center text-sm font-bold text-white shrink-0", COLORS[m.id % COLORS.length])}>
+                    {(m.name || "?")[0]}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-[12px] font-semibold text-white">{m.name}</div>
-                    <div className="text-[10px] text-cyan-400">{m.match}% match</div>
+                    <div className="text-[10px] text-cyan-400">{m.compatibilityScore}% match</div>
                   </div>
                   <MessageCircle className="w-4 h-4 text-white/30"/>
                 </div>

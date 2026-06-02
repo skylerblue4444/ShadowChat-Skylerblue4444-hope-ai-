@@ -70,3 +70,15 @@
 - [x] Enterprise Finance — treasury management, revenue attribution, multi-currency, payouts
 - [x] Observability Platform — metrics, logs, traces, error reporting, uptime monitoring
 - [ ] Feature Flag Platform — gradual rollouts, A/B testing, regional controls
+
+## Feature Recovery (Phase 3 — Full Module Build)
+- [ ] Dating/Match system — AI matching, swipe/match, compatibility scoring, chat after match
+- [ ] Live Video/Streaming — broadcast, live rooms, chat during stream, creator dashboard
+- [ ] Creator Studio — content management, monetization, scheduling, revenue tracking
+- [ ] Payments/Billing Hub — subscriptions, invoices, payout system, revenue splits
+- [ ] Social Graph/Network — followers, mutual connections, influence mapping, circles
+- [ ] Sandbox/Experimental Zone — AI test environments, simulation mode, beta testing
+- [ ] Moderation/Trust & Safety — content filtering, spam detection, fraud detection, risk scoring
+- [ ] SkyWorld immersive layer — virtual environments, faction system, virtual economy
+- [ ] All new pages registered in sidebar navigation
+- [ ] All new routers registered and tested

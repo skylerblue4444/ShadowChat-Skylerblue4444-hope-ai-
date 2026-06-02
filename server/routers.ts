@@ -23,6 +23,13 @@ import { digitalTwinRouter } from "./routers/digitalTwin";
 import { observabilityRouter } from "./routers/observability";
 import { treasuryRouter } from "./routers/treasury";
 import { advancedGovernanceRouter } from "./routers/advancedGovernance";
+import { datingRouter } from "./routers/dating";
+import { liveVideoRouter } from "./routers/liveVideo";
+import { creatorStudioRouter } from "./routers/creatorStudio";
+import { paymentsRouter } from "./routers/payments";
+import { socialGraphRouter } from "./routers/socialGraph";
+import { sandboxRouter } from "./routers/sandbox";
+import { moderationRouter } from "./routers/moderation";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -62,6 +69,15 @@ export const appRouter = router({
   observability: observabilityRouter,
   treasury: treasuryRouter,
   advancedGovernance: advancedGovernanceRouter,
+
+  // Phase 3 feature recovery routers
+  dating: datingRouter,
+  liveVideo: liveVideoRouter,
+  creatorStudio: creatorStudioRouter,
+  payments: paymentsRouter,
+  socialGraph: socialGraphRouter,
+  sandbox: sandboxRouter,
+  moderation: moderationRouter,
 });
 
 export type AppRouter = typeof appRouter;
