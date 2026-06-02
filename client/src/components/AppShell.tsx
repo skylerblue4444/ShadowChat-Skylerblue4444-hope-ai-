@@ -41,11 +41,17 @@ const NAV = [
     { path: "/wallet",        icon: Wallet,          label: "Wallet / Finance" },
     { path: "/exchange",      icon: CreditCard,      label: "Exchange / DEX" },
     { path: "/payments",      icon: DollarSign,      label: "Payments Hub" },
+    { path: "/crypto",        icon: Coins,           label: "Crypto Suite",    badge: "NEW", badgeType: "green" },
+    { path: "/tokenomics",    icon: TrendingUp,      label: "Tokenomics",      badge: "ICO", badgeType: "cyan" },
+    { path: "/casino",        icon: Spade,           label: "Casino",          badge: "🎰",  badgeType: "count" },
+    { path: "/gamification",  icon: Trophy,          label: "Gamification" },
   ]},
   { section: "AI & INTELLIGENCE", items: [
     { path: "/ai-core",      icon: Brain,     label: "HOPE AI Core",    badge: "AI",   badgeType: "cyan" },
     { path: "/ai-agents",    icon: Bot,       label: "AI Agent Market" },
     { path: "/digital-twin", icon: Cpu,       label: "Digital Twin" },
+    { path: "/ai-ide",       icon: Code2,     label: "AI Engineer IDE", badge: "PRO",  badgeType: "cyan" },
+    { path: "/dev",          icon: GitBranch, label: "Dev Workspace" },
   ]},
   { section: "ANALYTICS & DATA", items: [
     { path: "/analytics",   icon: BarChart3, label: "Analytics Hub" },

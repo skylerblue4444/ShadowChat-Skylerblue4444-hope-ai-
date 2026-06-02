@@ -146,3 +146,14 @@
 - [ ] Gamification/Achievements page
 - [ ] Crypto Staking/Mining/Burn pages
 - [ ] ICO/Investment Portal page
+
+## AI IDE + Developer Workspace (Final Push)
+- [ ] 6-Agent AI IDE backend (CodeGen, Reviewer, Tester, Deployer, Optimizer, Security agents)
+- [ ] Admin-only mod IDE with live preview and one-click deploy
+- [ ] Public developer workspace backend (code editor, AI pair programming, terminal, file manager)
+- [ ] AI as smart as Grok/ChatGPT/Manus (multi-model routing, context awareness, code execution)
+- [ ] Admin AI IDE frontend page (6 agents dashboard, task queue, live preview)
+- [ ] Public DevWorkspace frontend page (Monaco editor, AI chat, terminal, file tree)
+- [ ] Fix all ts-nocheck and remaining TS errors
+- [ ] Polish all pages with smooth animations and consistent UX
+- [ ] Register all new routes in App.tsx and sidebar

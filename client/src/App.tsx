@@ -43,6 +43,12 @@ const LiveVideo       = lazy(() => import("./pages/LiveVideo"));
 const SocialGraph     = lazy(() => import("./pages/SocialGraph"));
 const PaymentsHub     = lazy(() => import("./pages/PaymentsHub"));
 const SandboxZone     = lazy(() => import("./pages/SandboxZone"));
+const AIEngineerIDE   = lazy(() => import("./pages/AIEngineerIDE"));
+const DevWorkspace    = lazy(() => import("./pages/DevWorkspace"));
+const Casino          = lazy(() => import("./pages/Casino"));
+const Gamification    = lazy(() => import("./pages/Gamification"));
+const CryptoSuite     = lazy(() => import("./pages/CryptoSuite"));
+const Tokenomics      = lazy(() => import("./pages/Tokenomics"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -97,6 +103,12 @@ function Router() {
           <Route path="/social-graph"   component={SocialGraph} />
           <Route path="/payments"       component={PaymentsHub} />
           <Route path="/sandbox"        component={SandboxZone} />
+          <Route path="/ai-ide"         component={AIEngineerIDE} />
+          <Route path="/dev"            component={DevWorkspace} />
+          <Route path="/casino"         component={Casino} />
+          <Route path="/gamification"   component={Gamification} />
+          <Route path="/crypto"         component={CryptoSuite} />
+          <Route path="/tokenomics"     component={Tokenomics} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

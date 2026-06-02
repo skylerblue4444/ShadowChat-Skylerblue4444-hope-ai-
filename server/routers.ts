@@ -44,6 +44,9 @@ import { organizationRouter } from "./routers/organization";
 import { revenueEngineRouter } from "./routers/revenueEngine";
 import { gamificationRouter } from "./routers/gamification";
 import { enterpriseB2BRouter } from "./routers/enterpriseB2B";
+import { aiIDERouter } from "./routers/aiIDE";
+import { devWorkspaceRouter } from "./routers/devWorkspace";
+import { tokenomicsRouter } from "./routers/tokenomics";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -121,6 +124,13 @@ export const appRouter = router({
   revenue: revenueEngineRouter,
   gamification: gamificationRouter,
   enterpriseB2B: enterpriseB2BRouter,
+
+  // AI IDE & Developer Workspace
+  aiIDE: aiIDERouter,
+  devWorkspace: devWorkspaceRouter,
+
+  // Tokenomics — Full Crypto Economy
+  tokenomics: tokenomicsRouter,
 });
 
 export type AppRouter = typeof appRouter;
