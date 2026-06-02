@@ -41,6 +41,9 @@ import { knowledgeGraphRouter } from "./routers/knowledgeGraph";
 import { aiMemoryRouter } from "./routers/aiMemory";
 import { agentOSRouter } from "./routers/agentOS";
 import { organizationRouter } from "./routers/organization";
+import { revenueEngineRouter } from "./routers/revenueEngine";
+import { gamificationRouter } from "./routers/gamification";
+import { enterpriseB2BRouter } from "./routers/enterpriseB2B";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -113,6 +116,11 @@ export const appRouter = router({
   aiMemory: aiMemoryRouter,
   agentOS: agentOSRouter,
   organization: organizationRouter,
+
+  // Billion-Dollar Platform Layer
+  revenue: revenueEngineRouter,
+  gamification: gamificationRouter,
+  enterpriseB2B: enterpriseB2BRouter,
 });
 
 export type AppRouter = typeof appRouter;
