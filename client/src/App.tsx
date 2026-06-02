@@ -1,35 +1,100 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import AppShell from "./components/AppShell";
+import { lazy, Suspense } from "react";
+import { Loader2 } from "lucide-react";
 
+// All 30 modules — lazy loaded for performance
+const Dashboard      = lazy(() => import("./pages/Dashboard"));
+const SocialFeed     = lazy(() => import("./pages/SocialFeed"));
+const Dating         = lazy(() => import("./pages/Dating"));
+const Marketplace    = lazy(() => import("./pages/Marketplace"));
+const Wallet         = lazy(() => import("./pages/Wallet"));
+const AICore         = lazy(() => import("./pages/AICore"));
+const Profile        = lazy(() => import("./pages/Profile"));
+const Notifications  = lazy(() => import("./pages/Notifications"));
+const AdminPanel     = lazy(() => import("./pages/AdminPanel"));
+const Explore        = lazy(() => import("./pages/Explore"));
+const Analytics      = lazy(() => import("./pages/Analytics"));
+const Governance     = lazy(() => import("./pages/Governance"));
+const CreatorStudio  = lazy(() => import("./pages/CreatorStudio"));
+const AIAgentMarket  = lazy(() => import("./pages/AIAgentMarket"));
+const SecurityCenter = lazy(() => import("./pages/SecurityCenter"));
+const DigitalTwin    = lazy(() => import("./pages/DigitalTwin"));
+const Exchange       = lazy(() => import("./pages/Exchange"));
+const NFTGallery     = lazy(() => import("./pages/NFTGallery"));
+const Messaging      = lazy(() => import("./pages/Messaging"));
+const Settings       = lazy(() => import("./pages/Settings"));
+const Reputation     = lazy(() => import("./pages/Reputation"));
+const Referrals      = lazy(() => import("./pages/Referrals"));
+const Leaderboard    = lazy(() => import("./pages/Leaderboard"));
+const Events         = lazy(() => import("./pages/Events"));
+const Subscriptions  = lazy(() => import("./pages/Subscriptions"));
+const ModerationLayer= lazy(() => import("./pages/ModerationLayer"));
+const APIEcosystem   = lazy(() => import("./pages/APIEcosystem"));
+const NavigationSystem=lazy(() => import("./pages/NavigationSystem"));
+const FeatureFlags   = lazy(() => import("./pages/FeatureFlags"));
+const NotFound       = lazy(() => import("./pages/NotFound"));
 
-function Router() {
+function PageLoader() {
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+        <span className="text-[10px] text-white/30 font-mono tracking-widest uppercase">Loading Module...</span>
+      </div>
+    </div>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
+function Router() {
+  return (
+    <AppShell>
+      <Suspense fallback={<PageLoader />}>
+        <Switch>
+          <Route path="/"               component={Dashboard} />
+          <Route path="/feed"           component={SocialFeed} />
+          <Route path="/dating"         component={Dating} />
+          <Route path="/marketplace"    component={Marketplace} />
+          <Route path="/wallet"         component={Wallet} />
+          <Route path="/ai-core"        component={AICore} />
+          <Route path="/profile"        component={Profile} />
+          <Route path="/notifications"  component={Notifications} />
+          <Route path="/admin"          component={AdminPanel} />
+          <Route path="/explore"        component={Explore} />
+          <Route path="/analytics"      component={Analytics} />
+          <Route path="/governance"     component={Governance} />
+          <Route path="/creator-studio" component={CreatorStudio} />
+          <Route path="/ai-agents"      component={AIAgentMarket} />
+          <Route path="/security"       component={SecurityCenter} />
+          <Route path="/digital-twin"   component={DigitalTwin} />
+          <Route path="/exchange"       component={Exchange} />
+          <Route path="/nft"            component={NFTGallery} />
+          <Route path="/messages"       component={Messaging} />
+          <Route path="/settings"       component={Settings} />
+          <Route path="/reputation"     component={Reputation} />
+          <Route path="/referrals"      component={Referrals} />
+          <Route path="/leaderboard"    component={Leaderboard} />
+          <Route path="/events"         component={Events} />
+          <Route path="/subscriptions"  component={Subscriptions} />
+          <Route path="/moderation"     component={ModerationLayer} />
+          <Route path="/api-ecosystem"  component={APIEcosystem} />
+          <Route path="/navigation"     component={NavigationSystem} />
+          <Route path="/feature-flags"  component={FeatureFlags} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
+    </AppShell>
+  );
+}
 
-function App() {
+export default function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Router />
@@ -38,5 +103,3 @@ function App() {
     </ErrorBoundary>
   );
 }
-
-export default App;
