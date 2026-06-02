@@ -53,6 +53,9 @@ const Charity         = lazy(() => import("./pages/Charity"));
 const ICOPortal       = lazy(() => import("./pages/ICOPortal"));
 const AdultArea       = lazy(() => import("./pages/AdultArea"));
 const WisePayments    = lazy(() => import("./pages/WisePayments"));
+const SkyWorld        = lazy(() => import("./pages/SkyWorld"));
+const PluginMarket    = lazy(() => import("./pages/PluginMarketplace"));
+const DataLakePage    = lazy(() => import("./pages/DataLakePage"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -117,6 +120,9 @@ function Router() {
           <Route path="/ico"            component={ICOPortal} />
           <Route path="/adult"          component={AdultArea} />
           <Route path="/wise-payments"  component={WisePayments} />
+          <Route path="/skyworld"       component={SkyWorld} />
+          <Route path="/plugins"        component={PluginMarket} />
+          <Route path="/data-lake"      component={DataLakePage} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

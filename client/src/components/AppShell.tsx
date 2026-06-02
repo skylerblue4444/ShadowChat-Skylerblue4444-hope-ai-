@@ -56,6 +56,7 @@ const NAV = [
   { section: "ANALYTICS & DATA", items: [
     { path: "/analytics",   icon: BarChart3, label: "Analytics Hub" },
     { path: "/leaderboard", icon: Trophy,    label: "Leaderboard" },
+    { path: "/data-lake",   icon: Database,  label: "Data Lake",       badge: "ENT", badgeType: "cyan" },
   ]},
   { section: "GOVERNANCE", items: [
     { path: "/governance",  icon: Vote,     label: "Governance / DAO" },
@@ -71,6 +72,8 @@ const NAV = [
     { path: "/api",           icon: Code2,         label: "API Ecosystem" },
     { path: "/features",      icon: ToggleLeft,    label: "Feature Flags" },
     { path: "/sandbox",        icon: FlaskConical,  label: "Sandbox Zone" },
+    { path: "/skyworld",       icon: Globe,         label: "SkyWorld",        badge: "3D",  badgeType: "cyan" },
+    { path: "/plugins",        icon: Database,      label: "Plugin Market",   badge: "NEW", badgeType: "green" },
     { path: "/blackjack",     icon: Spade,         label: "Blackjack Casino", badge: "🃏", badgeType: "count" },
     { path: "/charity",       icon: Heart,         label: "Charity",       badge: "❤️",  badgeType: "green" },
     { path: "/ico",           icon: TrendingUp,    label: "ICO Portal",    badge: "🚀",  badgeType: "count" },

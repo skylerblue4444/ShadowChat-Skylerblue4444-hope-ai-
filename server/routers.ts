@@ -48,6 +48,7 @@ import { aiIDERouter } from "./routers/aiIDE";
 import { devWorkspaceRouter } from "./routers/devWorkspace";
 import { tokenomicsRouter } from "./routers/tokenomics";
 import { dataLakeRouter } from "./routers/dataLake";
+import { pluginMarketplaceRouter } from "./routers/pluginMarketplace";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -135,6 +136,9 @@ export const appRouter = router({
 
   // Data Lake — Enterprise Data Management
   dataLake: dataLakeRouter,
+
+  // Plugin Marketplace — Developer Ecosystem
+  pluginMarketplace: pluginMarketplaceRouter,
 });
 
 export type AppRouter = typeof appRouter;
