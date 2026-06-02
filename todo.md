@@ -82,3 +82,32 @@
 - [x] SkyWorld immersive layer — virtual environments, faction system, virtual economy (via Sandbox Zone)
 - [x] All new pages registered in sidebar navigation
 - [x] All new routers registered and tested
+
+## Enterprise Crypto Platform (Phase 4)
+- [ ] Multi-coin wallet (DOGE, Monero/XMR, USDT, Shadow, TRUMP, SkyCoin4444)
+- [ ] Staking system — lock tokens, earn APY, compound rewards, unstake cooldown
+- [ ] Token burning — deflationary burn portal, burn-to-earn, burn events
+- [ ] Mining pools — hash rate simulation, pool rewards, mining dashboard
+- [ ] Trading engine upgrade — all 6 coins tradeable, limit/market/stop orders
+- [ ] Tipping system — tip any user in any coin, tip history, tip leaderboard
+- [ ] Crypto payments — pay for services/NFTs/subscriptions with any coin
+- [ ] Portfolio tracker — real-time P&L, allocation charts, price alerts
+
+## Apple UI/UX Overhaul (Phase 4)
+- [ ] iPhone responsive — safe areas, touch targets 44px+, bottom nav, swipe gestures
+- [ ] iPad layout — split view, sidebar persistence, master-detail patterns
+- [ ] Mac desktop — hover states, keyboard shortcuts, window-aware layouts
+- [ ] SF Pro-inspired typography — system font stack, optical sizing
+- [ ] Haptic-style micro-interactions — spring animations, rubber-band scrolling
+- [ ] Dark mode refinement — true OLED black, depth layers, vibrancy effects
+- [ ] PWA manifest — installable on iOS/macOS, splash screens, app icons
+
+## Voice Navigation + AI Dev Tools + Engineer Workspace (Phase 5)
+- [ ] Voice command navigation system (speech recognition, command routing)
+- [ ] AI-powered code generation workspace (write, review, debug, deploy)
+- [ ] Software Engineer dev area (IDE-like code editor, terminal, file tree)
+- [ ] AI code review and suggestions panel
+- [ ] Voice-to-code transcription
+- [ ] Project scaffolding AI assistant
+- [ ] Real-time collaboration workspace
+- [ ] Git integration panel (commit, push, PR)

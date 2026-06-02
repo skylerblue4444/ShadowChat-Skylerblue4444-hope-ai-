@@ -829,3 +829,64 @@ export const sandboxEnvironments = mysqlTable("sandboxEnvironments", {
   results: json("results"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+// ═══════════════════════════════════════════════════════════════
+// ENTERPRISE CRYPTO — MINING, TIPPING, BURNS
+// ═══════════════════════════════════════════════════════════════
+export const miningPools = mysqlTable("miningPools", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  coin: mysqlEnum("coin", ["DOGE", "XMR", "USDT", "SHADOW", "TRUMP", "SKY444"]).notNull(),
+  algorithm: varchar("algorithm", { length: 64 }).default("RandomX"),
+  totalHashRate: decimal("totalHashRate", { precision: 20, scale: 4 }).default("0"),
+  totalMiners: int("totalMiners").default(0),
+  blockReward: decimal("blockReward", { precision: 20, scale: 8 }).default("0"),
+  difficulty: decimal("difficulty", { precision: 20, scale: 4 }).default("1"),
+  status: mysqlEnum("status", ["active", "maintenance", "offline"]).default("active"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const minerPositions = mysqlTable("minerPositions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  poolId: int("poolId").notNull(),
+  hashRate: decimal("hashRate", { precision: 20, scale: 4 }).default("0"),
+  totalMined: decimal("totalMined", { precision: 20, scale: 8 }).default("0"),
+  pendingRewards: decimal("pendingRewards", { precision: 20, scale: 8 }).default("0"),
+  isActive: boolean("isActive").default(true),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  lastPayoutAt: timestamp("lastPayoutAt"),
+});
+
+export const tips = mysqlTable("tips", {
+  id: int("id").autoincrement().primaryKey(),
+  fromUserId: int("fromUserId").notNull(),
+  toUserId: int("toUserId").notNull(),
+  coin: mysqlEnum("coin", ["DOGE", "XMR", "USDT", "SHADOW", "TRUMP", "SKY444"]).notNull(),
+  amount: decimal("amount", { precision: 20, scale: 8 }).notNull(),
+  message: text("message"),
+  context: mysqlEnum("context", ["post", "stream", "chat", "profile", "content"]).default("post"),
+  contextId: int("contextId"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const burns = mysqlTable("burns", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  coin: mysqlEnum("coin", ["DOGE", "XMR", "USDT", "SHADOW", "TRUMP", "SKY444"]).notNull(),
+  amount: decimal("amount", { precision: 20, scale: 8 }).notNull(),
+  reason: mysqlEnum("reason", ["deflationary", "burn_to_earn", "governance", "event", "voluntary"]).default("voluntary"),
+  rewardEarned: decimal("rewardEarned", { precision: 20, scale: 8 }).default("0"),
+  txHash: varchar("txHash", { length: 128 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const priceAlerts = mysqlTable("priceAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  coin: mysqlEnum("coin", ["DOGE", "XMR", "USDT", "SHADOW", "TRUMP", "SKY444"]).notNull(),
+  targetPrice: decimal("targetPrice", { precision: 20, scale: 8 }).notNull(),
+  direction: mysqlEnum("direction", ["above", "below"]).notNull(),
+  isTriggered: boolean("isTriggered").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});

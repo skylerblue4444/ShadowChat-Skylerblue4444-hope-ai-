@@ -30,6 +30,8 @@ import { paymentsRouter } from "./routers/payments";
 import { socialGraphRouter } from "./routers/socialGraph";
 import { sandboxRouter } from "./routers/sandbox";
 import { moderationRouter } from "./routers/moderation";
+import { cryptoRouter } from "./routers/crypto";
+import { aiEngineerRouter } from "./routers/aiEngineer";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -78,6 +80,10 @@ export const appRouter = router({
   socialGraph: socialGraphRouter,
   sandbox: sandboxRouter,
   moderation: moderationRouter,
+
+  // Enterprise Crypto
+  crypto: cryptoRouter,
+  aiEngineer: aiEngineerRouter,
 });
 
 export type AppRouter = typeof appRouter;
