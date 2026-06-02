@@ -1,3 +1,8 @@
+/**
+ * ShadowChat Ultimate — AppShell
+ * Premium dark luxury sidebar: glassmorphism, Syne typography,
+ * animated active states, live ticker tape, real-time stats.
+ */
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
@@ -8,16 +13,19 @@ import {
   BarChart3, Network, Vote, Clapperboard, Bot, Lock,
   CreditCard, Settings, Cpu, Server, Zap, GitBranch,
   Database, Workflow, AlertTriangle, Globe, Navigation, Flag,
-  ChevronLeft, ChevronRight, Menu, X, Activity, Coins
+  ChevronLeft, ChevronRight, Menu, X, Activity, Coins,
+  TrendingUp, Trophy, Calendar, Code2, ToggleLeft, Star, Users, Spade
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663608806484/6N4QjBq6mbsQ2KZPoCfSTe/sc_logo_glow-XgqLVfLTHinBqTAwG5gWuE.webp";
+
 const NAV = [
   { section: "CORE", items: [
-    { path: "/",              icon: LayoutDashboard, label: "Mission Control", badge: "LIVE", badgeType: "green" },
+    { path: "/",              icon: LayoutDashboard, label: "Mission Control",  badge: "LIVE", badgeType: "green" },
     { path: "/feed",          icon: MessageSquare,   label: "Social Feed" },
     { path: "/explore",       icon: Compass,         label: "Explore" },
-    { path: "/notifications", icon: Bell,            label: "Notifications", badgeType: "count" },
+    { path: "/notifications", icon: Bell,            label: "Notifications",   badgeType: "count" },
   ]},
   { section: "SOCIAL & MEDIA", items: [
     { path: "/dating",         icon: Heart,          label: "Dating / Match" },
@@ -31,65 +39,232 @@ const NAV = [
     { path: "/exchange",      icon: CreditCard,      label: "Exchange / DEX" },
   ]},
   { section: "AI & INTELLIGENCE", items: [
-    { path: "/ai-core",           icon: Brain,       label: "HOPE AI Core",     badge: "AI",  badgeType: "cyan" },
-    { path: "/ai-agents",         icon: Bot,         label: "AI Agent Market" },
-    { path: "/digital-twin",      icon: Cpu,         label: "Digital Twin" },
-    { path: "/ai-agents",         icon: GitBranch,   label: "AI Orchestration" },
+    { path: "/ai-core",      icon: Brain,     label: "HOPE AI Core",    badge: "AI",   badgeType: "cyan" },
+    { path: "/ai-agents",    icon: Bot,       label: "AI Agent Market" },
+    { path: "/digital-twin", icon: Cpu,       label: "Digital Twin" },
   ]},
   { section: "ANALYTICS & DATA", items: [
-    { path: "/analytics",   icon: BarChart3,         label: "Analytics Hub" },
-    { path: "/leaderboard", icon: Database,          label: "Leaderboard" },
+    { path: "/analytics",   icon: BarChart3, label: "Analytics Hub" },
+    { path: "/leaderboard", icon: Trophy,    label: "Leaderboard" },
   ]},
   { section: "GOVERNANCE", items: [
-    { path: "/governance",  icon: Vote,              label: "Governance / DAO" },
-    { path: "/profile",     icon: User,              label: "Profile" },
-    { path: "/security",    icon: Lock,              label: "Security Center" },
-    { path: "/reputation",  icon: Activity,          label: "Reputation" },
-    { path: "/referrals",   icon: Coins,             label: "Referrals" },
+    { path: "/governance",  icon: Vote,     label: "Governance / DAO" },
+    { path: "/profile",     icon: User,     label: "Profile" },
+    { path: "/security",    icon: Lock,     label: "Security Center" },
+    { path: "/reputation",  icon: Activity, label: "Reputation" },
+    { path: "/referrals",   icon: Users,    label: "Referrals" },
   ]},
-  { section: "INFRASTRUCTURE", items: [
-    { path: "/events",        icon: Server,          label: "Events & Spaces" },
-    { path: "/subscriptions", icon: Zap,             label: "Subscriptions" },
-    { path: "/moderation",    icon: AlertTriangle,   label: "Moderation Layer" },
-    { path: "/api-ecosystem", icon: Globe,           label: "API Ecosystem" },
-  ]},
-  { section: "SYSTEM", items: [
-    { path: "/admin",         icon: Shield,          label: "Admin Panel",      badge: "ROOT", badgeType: "red" },
-    { path: "/settings",      icon: Settings,        label: "Settings" },
-    { path: "/navigation",    icon: Navigation,      label: "Navigation System" },
-    { path: "/feature-flags", icon: Flag,            label: "Feature Flags" },
+  { section: "PLATFORM", items: [
+    { path: "/events",        icon: Calendar,      label: "Events & Spaces" },
+    { path: "/subscriptions", icon: Zap,           label: "Subscriptions" },
+    { path: "/moderation",    icon: AlertTriangle, label: "Moderation Layer" },
+    { path: "/api",           icon: Code2,         label: "API Ecosystem" },
+    { path: "/features",      icon: ToggleLeft,    label: "Feature Flags" },
+    { path: "/blackjack",     icon: Spade,         label: "Blackjack Casino", badge: "🃏", badgeType: "count" },
+    { path: "/admin",         icon: Shield,        label: "Admin Panel",  badge: "ROOT", badgeType: "red" },
+    { path: "/settings",      icon: Settings,      label: "Settings" },
   ]},
 ];
 
 const BADGE_STYLES: Record<string, string> = {
-  green:  "bg-green-500/20 text-green-400 border-green-500/30",
-  cyan:   "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  red:    "bg-red-500/20 text-red-400 border-red-500/30",
-  gold:   "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  count:  "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  green: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+  cyan:  "bg-cyan-500/15 text-cyan-400 border-cyan-500/25",
+  red:   "bg-red-500/15 text-red-400 border-red-500/25",
+  count: "bg-orange-500/15 text-orange-400 border-orange-500/25",
 };
+
+const TICKER_ITEMS = [
+  "BTC $67.4K ▲2.1%", "ETH $3.8K ▲1.6%", "SOL $182 ▲5.3%",
+  "SKYCOIN $4.44 ▲12.4%", "TRUMP $8.72 ▲18.2%", "DOGE $0.182 ▲3.7%",
+  "USDT $1.00 ▲0.0%", "BNB $612 ▲0.8%", "ADA $0.48 ▲4.2%", "MATIC $0.92 ▲7.1%",
+];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { sidebarCollapsed, setSidebarCollapsed, unreadCount, currentUser, systemStatus, aiMode } = useAppStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [liveStats, setLiveStats] = useState(systemStatus);
+  const [time, setTime] = useState(new Date());
 
-  // Simulate live system stats
+  useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setLiveStats(prev => ({
         ...prev,
-        activeUsers: prev.activeUsers + Math.floor((Math.random() - 0.4) * 10),
+        activeUsers: Math.max(20000, prev.activeUsers + Math.floor((Math.random() - 0.4) * 15)),
         txPerSecond: Math.floor(4000 + Math.random() * 800),
-        feedLatency: Math.floor(8 + Math.random() * 10),
+        feedLatency: Math.floor(8 + Math.random() * 8),
       }));
     }, 2000);
     return () => clearInterval(interval);
   }, []);
 
+  // Close mobile on route change
+  useEffect(() => { setMobileOpen(false); }, [location]);
+
+  const sidebarInner = (
+    <div className="flex flex-col h-full">
+      {/* ── Logo ── */}
+      <div className={cn(
+        "flex items-center gap-2.5 px-3 py-3.5 border-b border-white/[0.06] shrink-0",
+        sidebarCollapsed && "justify-center"
+      )}>
+        <div className="relative shrink-0">
+          <img
+            src={LOGO_URL}
+            alt="SC"
+            className="w-8 h-8 rounded-xl object-cover"
+            style={{ filter: "drop-shadow(0 0 8px rgba(0,229,255,0.4))" }}
+          />
+          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#050510] animate-pulse" />
+        </div>
+        <AnimatePresence>
+          {!sidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.2 }}
+              className="min-w-0 flex-1"
+            >
+              <div className="text-[14px] font-bold text-white leading-none" style={{ fontFamily: "Syne, sans-serif" }}>
+                ShadowChat
+              </div>
+              <div className="text-[9px] font-mono tracking-[0.18em] mt-0.5" style={{ color: "rgba(0,229,255,0.6)" }}>
+                ULTIMATE v70
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ── Live mini stats ── */}
+      <AnimatePresence>
+        {!sidebarCollapsed && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="px-3 py-2 border-b border-white/[0.06] grid grid-cols-3 gap-1 overflow-hidden"
+          >
+            {[
+              { label: "USERS", val: `${(liveStats.activeUsers / 1000).toFixed(1)}K`, color: "text-cyan-400" },
+              { label: "TPS",   val: liveStats.txPerSecond.toLocaleString(),           color: "text-amber-400" },
+              { label: "AI",    val: `${aiMode.health}%`,                              color: "text-emerald-400" },
+            ].map(s => (
+              <div key={s.label} className="text-center py-0.5">
+                <div className={cn("text-[11px] font-mono font-bold", s.color)}>{s.val}</div>
+                <div className="text-[8px] text-white/25 tracking-wider font-mono">{s.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Nav ── */}
+      <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-3">
+        {NAV.map(({ section, items }) => (
+          <div key={section}>
+            <AnimatePresence>
+              {!sidebarCollapsed && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="px-2 mb-1.5 text-[8px] font-bold tracking-[0.18em] text-white/25 uppercase"
+                  style={{ fontFamily: "Space Mono, monospace" }}
+                >
+                  {section}
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <div className="space-y-0.5">
+              {items.map((item) => {
+                const active = location === item.path || (item.path !== "/" && location.startsWith(item.path));
+                const badge = item.badgeType === "count"
+                  ? (unreadCount > 0 ? String(unreadCount) : null)
+                  : item.badge;
+                return (
+                  <Link key={item.path + item.label} href={item.path} onClick={() => setMobileOpen(false)}>
+                    <div
+                      className={cn(
+                        "flex items-center gap-2 px-2 py-[7px] rounded-[9px] text-[12.5px] transition-all duration-150 cursor-pointer relative overflow-hidden",
+                        sidebarCollapsed && "justify-center px-2",
+                        active
+                          ? "bg-cyan-500/[0.09] text-cyan-400 border border-cyan-500/[0.18]"
+                          : "text-white/40 hover:text-white/75 hover:bg-white/[0.04] border border-transparent"
+                      )}
+                      title={sidebarCollapsed ? item.label : undefined}
+                    >
+                      {active && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-cyan-400 rounded-r"
+                          style={{ boxShadow: "0 0 8px rgba(0,229,255,0.7)" }} />
+                      )}
+                      <item.icon className={cn("w-[14px] h-[14px] shrink-0", active ? "text-cyan-400" : "")} />
+                      <AnimatePresence>
+                        {!sidebarCollapsed && (
+                          <motion.span
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            className="flex-1 truncate font-medium"
+                            style={{ fontFamily: "Space Grotesk, sans-serif" }}
+                          >
+                            {item.label}
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                      {!sidebarCollapsed && badge && (
+                        <span className={cn(
+                          "text-[8px] px-1.5 py-0.5 rounded border font-mono font-bold shrink-0",
+                          BADGE_STYLES[item.badgeType || "cyan"]
+                        )}>
+                          {badge}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* ── User footer ── */}
+      <div className="border-t border-white/[0.06] p-2 space-y-1 shrink-0">
+        <AnimatePresence>
+          {!sidebarCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="flex items-center gap-2 px-2 py-2 rounded-[9px]"
+              style={{ background: "rgba(0,229,255,0.04)", border: "1px solid rgba(0,229,255,0.08)" }}
+            >
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                {currentUser.avatar}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[11px] font-semibold text-white truncate" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+                  {currentUser.name}
+                </div>
+                <div className="text-[8px] font-mono tracking-wider" style={{ color: "rgba(0,229,255,0.6)" }}>
+                  {currentUser.role.toUpperCase()}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="hidden lg:flex w-full items-center justify-center gap-1.5 px-2 py-1.5 rounded-[9px] text-white/25 hover:text-white/55 hover:bg-white/[0.04] transition-colors text-[11px]"
+        >
+          {sidebarCollapsed
+            ? <ChevronRight className="w-3.5 h-3.5" />
+            : <><ChevronLeft className="w-3.5 h-3.5" /><span style={{ fontFamily: "Space Grotesk, sans-serif" }}>Collapse</span></>
+          }
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden" style={{ background: "#050510" }}>
       {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
@@ -101,140 +276,72 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* ── Sidebar ─────────────────────────────────────────────────── */}
-      <aside className={cn(
-        "fixed lg:relative z-50 h-full flex flex-col transition-all duration-300 ease-out",
-        "bg-[oklch(0.09_0.01_265)] border-r border-white/[0.07]",
-        sidebarCollapsed ? "w-[52px]" : "w-[220px]",
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      )}>
-        {/* Logo */}
-        <div className={cn(
-          "flex items-center gap-2.5 px-3 py-3.5 border-b border-white/[0.07] shrink-0",
-          sidebarCollapsed && "justify-center"
-        )}>
-          <div className="relative shrink-0">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <Brain className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-green-400 border border-background animate-pulse" />
-          </div>
-          {!sidebarCollapsed && (
-            <div className="min-w-0 flex-1">
-              <div className="text-sm font-bold text-white leading-none" style={{ fontFamily: 'Syne, sans-serif' }}>
-                ShadowChat
-              </div>
-              <div className="text-[9px] text-cyan-400 tracking-[0.2em] font-mono mt-0.5">ULTIMATE v70</div>
-            </div>
-          )}
-        </div>
-
-        {/* Live mini stats bar */}
-        {!sidebarCollapsed && (
-          <div className="px-3 py-2 border-b border-white/[0.07] grid grid-cols-3 gap-1">
-            {[
-              { label: 'USERS', val: `${(liveStats.activeUsers/1000).toFixed(1)}K` },
-              { label: 'TPS', val: liveStats.txPerSecond },
-              { label: 'AI', val: `${aiMode.health}%` },
-            ].map(s => (
-              <div key={s.label} className="text-center">
-                <div className="text-[10px] font-mono text-cyan-400">{s.val}</div>
-                <div className="text-[8px] text-muted-foreground tracking-wider">{s.label}</div>
-              </div>
-            ))}
-          </div>
+      {/* ── Sidebar ── */}
+      <motion.aside
+        animate={{ width: sidebarCollapsed ? 52 : 220 }}
+        transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+        className={cn(
+          "fixed lg:relative z-50 h-full flex flex-col overflow-hidden",
+          "border-r border-white/[0.06]",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
+        style={{
+          background: "rgba(7,7,20,0.97)",
+          backdropFilter: "blur(24px)",
+          transition: "width 0.25s cubic-bezier(0.23,1,0.32,1), transform 0.25s cubic-bezier(0.23,1,0.32,1)",
+        }}
+      >
+        {sidebarInner}
+      </motion.aside>
 
-        {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-2 px-1.5 space-y-3">
-          {NAV.map(({ section, items }) => (
-            <div key={section}>
-              {!sidebarCollapsed && (
-                <div className="px-2 mb-1 text-[8px] font-semibold tracking-[0.15em] text-white/30 uppercase">
-                  {section}
-                </div>
-              )}
-              <div className="space-y-0.5">
-                {items.map((item) => {
-                  const active = location === item.path;
-                  const badge = item.badgeType === 'count' ? (unreadCount > 0 ? String(unreadCount) : null) : item.badge;
-                  return (
-                    <Link key={item.path} href={item.path} onClick={() => setMobileOpen(false)}>
-                      <div className={cn(
-                        "flex items-center gap-2 px-2 py-1.5 rounded-md text-[13px] transition-all duration-150 cursor-pointer group relative",
-                        active
-                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                          : "text-white/50 hover:text-white/80 hover:bg-white/5"
-                      )} title={sidebarCollapsed ? item.label : undefined}>
-                        {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3.5 bg-cyan-400 rounded-r" />}
-                        <item.icon className={cn("w-3.5 h-3.5 shrink-0", active && "text-cyan-400")} />
-                        {!sidebarCollapsed && (
-                          <>
-                            <span className="flex-1 truncate">{item.label}</span>
-                            {badge && (
-                              <span className={cn("text-[8px] px-1.5 py-0.5 rounded border font-mono font-bold", BADGE_STYLES[item.badgeType || 'cyan'])}>
-                                {badge}
-                              </span>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        {/* User + collapse */}
-        <div className="border-t border-white/[0.07] p-2 space-y-1">
-          {!sidebarCollapsed && (
-            <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-white/5">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                {currentUser.avatar}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-[11px] font-semibold text-white truncate">{currentUser.name}</div>
-                <div className="text-[9px] text-cyan-400 font-mono">{currentUser.role.toUpperCase()}</div>
-              </div>
-            </div>
-          )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="hidden lg:flex w-full items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-white/30 hover:text-white/60 hover:bg-white/5 transition-colors text-[11px]"
-          >
-            {sidebarCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <><ChevronLeft className="w-3.5 h-3.5" /><span>Collapse</span></>}
-          </button>
-        </div>
-      </aside>
-
-      {/* ── Main ────────────────────────────────────────────────────── */}
+      {/* ── Main ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-11 border-b border-white/[0.07] flex items-center gap-3 px-4 shrink-0 bg-[oklch(0.09_0.01_265)]/80 backdrop-blur-sm">
-          <button className="lg:hidden p-1.5 rounded-md hover:bg-white/10 text-white/50" onClick={() => setMobileOpen(!mobileOpen)}>
+        <header
+          className="h-11 border-b border-white/[0.06] flex items-center gap-3 px-4 shrink-0"
+          style={{ background: "rgba(5,5,16,0.92)", backdropFilter: "blur(20px)" }}
+        >
+          <button
+            className="lg:hidden p-1.5 rounded-lg hover:bg-white/[0.07] text-white/40 hover:text-white/70 transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Activity className="w-3.5 h-3.5 text-green-400 shrink-0" />
-            <span className="text-[11px] text-white/40 font-mono truncate">
-              HOPE AI × ShadowChat × SKYCOIN4444 — All Systems Operational
-            </span>
+
+          {/* Ticker tape */}
+          <div className="flex-1 min-w-0 overflow-hidden">
+            <div
+              className="flex gap-8 whitespace-nowrap"
+              style={{ animation: "sc-ticker 50s linear infinite" }}
+            >
+              {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+                <span key={i} className="text-[10px] font-mono text-white/35 shrink-0">
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="hidden sm:flex items-center gap-1 text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded">
+
+          {/* Right side */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono px-2 py-1 rounded-lg border"
+              style={{ color: "rgba(0,229,255,0.8)", background: "rgba(0,229,255,0.07)", borderColor: "rgba(0,229,255,0.15)" }}>
               <Coins className="w-3 h-3" />
               4,444,444 SKY
             </div>
-            <div className="text-[9px] px-1.5 py-0.5 rounded border font-mono bg-green-500/10 text-green-400 border-green-500/20">
+            <div className="flex items-center gap-1.5 text-[9px] font-mono px-2 py-1 rounded-lg border"
+              style={{ color: "rgba(16,185,129,0.9)", background: "rgba(16,185,129,0.08)", borderColor: "rgba(16,185,129,0.2)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse" />
               {systemStatus.uptime}% UP
+            </div>
+            <div className="text-[10px] font-mono text-white/20 hidden md:block">
+              {time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
             </div>
           </div>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto" style={{ animation: "sc-fade-in 0.3s cubic-bezier(0.23,1,0.32,1) both" }}>
           {children}
         </main>
       </div>

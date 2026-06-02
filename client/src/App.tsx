@@ -4,40 +4,42 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AppShell from "./components/AppShell";
+import VoiceDeck from "./components/VoiceDeck";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-// All 30 modules — lazy loaded for performance
-const Dashboard      = lazy(() => import("./pages/Dashboard"));
-const SocialFeed     = lazy(() => import("./pages/SocialFeed"));
-const Dating         = lazy(() => import("./pages/Dating"));
-const Marketplace    = lazy(() => import("./pages/Marketplace"));
-const Wallet         = lazy(() => import("./pages/Wallet"));
-const AICore         = lazy(() => import("./pages/AICore"));
-const Profile        = lazy(() => import("./pages/Profile"));
-const Notifications  = lazy(() => import("./pages/Notifications"));
-const AdminPanel     = lazy(() => import("./pages/AdminPanel"));
-const Explore        = lazy(() => import("./pages/Explore"));
-const Analytics      = lazy(() => import("./pages/Analytics"));
-const Governance     = lazy(() => import("./pages/Governance"));
-const CreatorStudio  = lazy(() => import("./pages/CreatorStudio"));
-const AIAgentMarket  = lazy(() => import("./pages/AIAgentMarket"));
-const SecurityCenter = lazy(() => import("./pages/SecurityCenter"));
-const DigitalTwin    = lazy(() => import("./pages/DigitalTwin"));
-const Exchange       = lazy(() => import("./pages/Exchange"));
-const NFTGallery     = lazy(() => import("./pages/NFTGallery"));
-const Messaging      = lazy(() => import("./pages/Messaging"));
-const Settings       = lazy(() => import("./pages/Settings"));
-const Reputation     = lazy(() => import("./pages/Reputation"));
-const Referrals      = lazy(() => import("./pages/Referrals"));
-const Leaderboard    = lazy(() => import("./pages/Leaderboard"));
-const Events         = lazy(() => import("./pages/Events"));
-const Subscriptions  = lazy(() => import("./pages/Subscriptions"));
-const ModerationLayer= lazy(() => import("./pages/ModerationLayer"));
-const APIEcosystem   = lazy(() => import("./pages/APIEcosystem"));
-const NavigationSystem=lazy(() => import("./pages/NavigationSystem"));
-const FeatureFlags   = lazy(() => import("./pages/FeatureFlags"));
-const NotFound       = lazy(() => import("./pages/NotFound"));
+// ── All 32 modules — lazy loaded ─────────────────────────────────────────────
+const Dashboard       = lazy(() => import("./pages/Dashboard"));
+const SocialFeed      = lazy(() => import("./pages/SocialFeed"));
+const Dating          = lazy(() => import("./pages/Dating"));
+const Marketplace     = lazy(() => import("./pages/Marketplace"));
+const Wallet          = lazy(() => import("./pages/Wallet"));
+const AICore          = lazy(() => import("./pages/AICore"));
+const Profile         = lazy(() => import("./pages/Profile"));
+const Notifications   = lazy(() => import("./pages/Notifications"));
+const AdminPanel      = lazy(() => import("./pages/AdminPanel"));
+const Explore         = lazy(() => import("./pages/Explore"));
+const Analytics       = lazy(() => import("./pages/Analytics"));
+const Governance      = lazy(() => import("./pages/Governance"));
+const CreatorStudio   = lazy(() => import("./pages/CreatorStudio"));
+const AIAgentMarket   = lazy(() => import("./pages/AIAgentMarket"));
+const SecurityCenter  = lazy(() => import("./pages/SecurityCenter"));
+const DigitalTwin     = lazy(() => import("./pages/DigitalTwin"));
+const Exchange        = lazy(() => import("./pages/Exchange"));
+const NFTGallery      = lazy(() => import("./pages/NFTGallery"));
+const Messaging       = lazy(() => import("./pages/Messaging"));
+const Settings        = lazy(() => import("./pages/Settings"));
+const Reputation      = lazy(() => import("./pages/Reputation"));
+const Referrals       = lazy(() => import("./pages/Referrals"));
+const Leaderboard     = lazy(() => import("./pages/Leaderboard"));
+const Events          = lazy(() => import("./pages/Events"));
+const Subscriptions   = lazy(() => import("./pages/Subscriptions"));
+const ModerationLayer = lazy(() => import("./pages/ModerationLayer"));
+const APIEcosystem    = lazy(() => import("./pages/APIEcosystem"));
+const NavigationSystem= lazy(() => import("./pages/NavigationSystem"));
+const FeatureFlags    = lazy(() => import("./pages/FeatureFlags"));
+const Blackjack       = lazy(() => import("./pages/Blackjack"));
+const NotFound        = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
   return (
@@ -81,12 +83,17 @@ function Router() {
           <Route path="/events"         component={Events} />
           <Route path="/subscriptions"  component={Subscriptions} />
           <Route path="/moderation"     component={ModerationLayer} />
+          <Route path="/api"            component={APIEcosystem} />
           <Route path="/api-ecosystem"  component={APIEcosystem} />
           <Route path="/navigation"     component={NavigationSystem} />
+          <Route path="/features"       component={FeatureFlags} />
           <Route path="/feature-flags"  component={FeatureFlags} />
+          <Route path="/blackjack"      component={Blackjack} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
+      {/* Global Voice Deck — always visible */}
+      <VoiceDeck />
     </AppShell>
   );
 }
@@ -96,7 +103,7 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          <Toaster />
+          <Toaster richColors position="top-right" />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

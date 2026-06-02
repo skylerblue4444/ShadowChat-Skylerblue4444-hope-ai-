@@ -1,11 +1,36 @@
+/**
+ * ShadowChat Ultimate — Social Feed
+ * Premium dark luxury social feed matching Mission Control quality.
+ * AI-ranked posts, trending sidebar, glassmorphism cards, live composer.
+ */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, MessageCircle, Share2, TrendingUp, Flame, Sparkles, Image, Send, MoreHorizontal, Bookmark, Flag, Repeat2, Verified } from "lucide-react";
+import {
+  Heart, MessageCircle, Share2, Bookmark, MoreHorizontal,
+  TrendingUp, Flame, Sparkles, Image, Send, Hash, AtSign,
+  Globe, Lock, Users, ArrowUpRight, Repeat2, Verified, Zap
+} from "lucide-react";
 import { FEED_POSTS } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store";
 import { toast } from "sonner";
 
-const TABS = ["For You", "Following", "Trending", "Creators"];
+const TABS = ["For You", "Following", "Trending", "AI Ranked"] as const;
+
+const TRENDING = [
+  { tag: "#SKYCOIN4444", posts: "24.8K", change: "+412%", hot: true },
+  { tag: "#HopeAI",      posts: "18.2K", change: "+287%", hot: true },
+  { tag: "#ShadowDAO",   posts: "12.1K", change: "+156%", hot: false },
+  { tag: "#AIAgents",    posts: "9.4K",  change: "+98%",  hot: false },
+  { tag: "#Bitcoin",     posts: "8.7K",  change: "+44%",  hot: false },
+  { tag: "#Solana",      posts: "6.3K",  change: "+67%",  hot: false },
+];
+
+const SUGGESTED_USERS = [
+  { name: "HOPE AI Oracle", handle: "@hopeai_oracle", avatar: "🔮", followers: "44.4K" },
+  { name: "Crypto Samurai", handle: "@cryptosamurai", avatar: "⚔️", followers: "28.1K" },
+  { name: "Shadow Witch",   handle: "@shadowwitch",   avatar: "🧙‍♀️", followers: "19.7K" },
+];
 
 function PostCard({ post, index }: { post: typeof FEED_POSTS[0]; index: number }) {
   const [liked, setLiked] = useState(false);
@@ -19,94 +44,109 @@ function PostCard({ post, index }: { post: typeof FEED_POSTS[0]; index: number }
     setLikes(p => p + (liked ? -1 : 1));
   };
 
+  const aiScore = 70 + (index * 7 % 30);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-      className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] overflow-hidden hover:border-white/[0.12] transition-colors"
+      className="rounded-2xl border border-white/[0.07] overflow-hidden transition-all hover:border-white/[0.12]"
+      style={{ background: "rgba(13,13,34,0.75)", backdropFilter: "blur(12px)" }}
     >
       <div className="p-4">
-        {/* Author */}
+        {/* Author row */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center text-sm font-bold text-white shrink-0">
               {post.avatar}
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-semibold text-white">{post.user}</span>
+                <span className="text-[13px] font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                  {post.user}
+                </span>
                 {post.verified && <Verified className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400" />}
                 {post.trending && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/20 font-mono">TRENDING</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded border font-mono bg-orange-500/15 text-orange-400 border-orange-500/25">
+                    HOT
+                  </span>
                 )}
               </div>
-              <div className="text-[11px] text-white/40">{post.handle} · {post.time}</div>
+              <div className="text-[11px] text-white/35 mt-0.5">{post.handle} · {post.time}</div>
             </div>
           </div>
-          <button className="p-1 rounded-lg hover:bg-white/10 text-white/30 hover:text-white/60 transition-colors">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg border border-cyan-500/20 bg-cyan-500/8">
+              <Sparkles className="w-2.5 h-2.5 text-cyan-400" />
+              <span className="text-[9px] font-mono text-cyan-400">{aiScore}</span>
+            </div>
+            <button className="p-1 rounded-lg text-white/25 hover:text-white/50 transition-colors">
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
-        <p className="text-sm text-white/80 leading-relaxed mb-3">{post.content}</p>
+        <p className="text-[13px] text-white/80 leading-relaxed mb-3" style={{ fontFamily: "Space Grotesk, sans-serif" }}>
+          {post.content}
+        </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {post.tags.map(tag => (
-            <span key={tag} className="text-[10px] text-cyan-400 hover:text-cyan-300 cursor-pointer transition-colors">{tag}</span>
-          ))}
-        </div>
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {post.tags.map((tag: string) => (
+              <span key={tag} className="text-[11px] text-cyan-400 hover:text-cyan-300 cursor-pointer transition-colors">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
-          <div className="flex items-center gap-4">
-            <button onClick={handleLike} className={cn("flex items-center gap-1.5 text-[12px] transition-all", liked ? "text-red-400" : "text-white/40 hover:text-red-400")}>
-              <Heart className={cn("w-4 h-4 transition-transform active:scale-125", liked && "fill-red-400")} />
+        <div className="flex items-center justify-between pt-3 border-t border-white/[0.05]">
+          <div className="flex items-center gap-1">
+            <button onClick={handleLike}
+              className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] transition-all",
+                liked ? "bg-red-500/12 text-red-400" : "text-white/35 hover:text-red-400 hover:bg-red-500/8")}>
+              <Heart className={cn("w-3.5 h-3.5", liked && "fill-current")} />
               {likes.toLocaleString()}
             </button>
-            <button onClick={() => setShowComment(p => !p)} className="flex items-center gap-1.5 text-[12px] text-white/40 hover:text-cyan-400 transition-colors">
-              <MessageCircle className="w-4 h-4" />
+            <button onClick={() => setShowComment(p => !p)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-white/35 hover:text-cyan-400 hover:bg-cyan-500/8 transition-all">
+              <MessageCircle className="w-3.5 h-3.5" />
               {post.comments.toLocaleString()}
             </button>
-            <button onClick={() => toast.success("Post shared!")} className="flex items-center gap-1.5 text-[12px] text-white/40 hover:text-green-400 transition-colors">
-              <Repeat2 className="w-4 h-4" />
+            <button onClick={() => toast.success("Post shared!")}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-white/35 hover:text-green-400 hover:bg-green-500/8 transition-all">
+              <Repeat2 className="w-3.5 h-3.5" />
               {post.shares.toLocaleString()}
             </button>
           </div>
-          <button onClick={() => setBookmarked(p => !p)} className={cn("p-1 rounded transition-colors", bookmarked ? "text-amber-400" : "text-white/30 hover:text-amber-400")}>
-            <Bookmark className={cn("w-4 h-4", bookmarked && "fill-amber-400")} />
+          <button onClick={() => setBookmarked(p => !p)}
+            className={cn("p-1.5 rounded-lg transition-all",
+              bookmarked ? "text-amber-400 bg-amber-500/10" : "text-white/25 hover:text-amber-400")}>
+            <Bookmark className={cn("w-3.5 h-3.5", bookmarked && "fill-current")} />
           </button>
         </div>
       </div>
 
-      {/* Comment input */}
+      {/* Comment composer */}
       <AnimatePresence>
         {showComment && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="border-t border-white/[0.06] px-4 py-3 bg-white/[0.02]"
+            initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+            className="border-t border-white/[0.05] px-4 py-3 overflow-hidden"
+            style={{ background: "rgba(255,255,255,0.02)" }}
           >
             <div className="flex gap-2">
-              <input
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-1.5 text-[12px] text-white placeholder:text-white/30 outline-none focus:border-cyan-500/40"
-                onKeyDown={e => {
-                  if (e.key === "Enter" && comment.trim()) {
-                    toast.success("Comment posted!");
-                    setComment("");
-                  }
-                }}
+              <input value={comment} onChange={e => setComment(e.target.value)}
+                placeholder="Write a reply..."
+                className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2 text-[12px] text-white placeholder:text-white/25 outline-none focus:border-cyan-500/30 transition-colors"
+                onKeyDown={e => { if (e.key === "Enter" && comment.trim()) { toast.success("Reply posted!"); setComment(""); setShowComment(false); } }}
               />
-              <button
-                onClick={() => { if (comment.trim()) { toast.success("Comment posted!"); setComment(""); } }}
-                className="p-2 rounded-lg bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
-              >
+              <button onClick={() => { if (comment.trim()) { toast.success("Reply posted!"); setComment(""); setShowComment(false); } }}
+                className="p-2 rounded-xl bg-cyan-500/15 border border-cyan-500/25 text-cyan-400 hover:bg-cyan-500/25 transition-colors">
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -118,25 +158,25 @@ function PostCard({ post, index }: { post: typeof FEED_POSTS[0]; index: number }
 }
 
 export default function SocialFeed() {
-  const [activeTab, setActiveTab] = useState("For You");
+  const { currentUser } = useAppStore();
+  const [activeTab, setActiveTab] = useState<typeof TABS[number]>("For You");
   const [postText, setPostText] = useState("");
   const [posts, setPosts] = useState(FEED_POSTS);
+  const [privacy, setPrivacy] = useState<"public" | "followers" | "private">("public");
 
   const handlePost = () => {
     if (!postText.trim()) return;
     const newPost = {
       id: `p${Date.now()}`,
-      user: "Skyler Blue",
-      handle: "@skylerblue",
-      avatar: "SB",
+      user: currentUser.name,
+      handle: `@${currentUser.name.toLowerCase().replace(" ", "")}`,
+      avatar: currentUser.name.slice(0, 2).toUpperCase(),
       verified: true,
       content: postText,
-      likes: 0,
-      comments: 0,
-      shares: 0,
+      likes: 0, comments: 0, shares: 0,
       time: "just now",
       trending: false,
-      tags: [],
+      tags: postText.match(/#(\w+)/g) ?? [],
     };
     setPosts(p => [newPost, ...p]);
     setPostText("");
@@ -144,75 +184,158 @@ export default function SocialFeed() {
   };
 
   return (
-    <div className="p-5 max-w-[900px] mx-auto space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'Syne, sans-serif' }}>Social Feed</h1>
-          <p className="text-[11px] text-white/40">AI-ranked · TikTok × X × Web3</p>
+    <div className="flex gap-5 p-5 max-w-[1400px]">
+      {/* ── Main Feed ── */}
+      <div className="flex-1 min-w-0 space-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[20px] font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Social Feed</h1>
+            <p className="text-[11px] text-white/35 mt-0.5">AI-ranked · {posts.length} posts · 24.8K active today</p>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-green-500/20 bg-green-500/8">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-[10px] font-mono text-green-400">LIVE</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Flame className="w-4 h-4 text-orange-400" />
-          <span className="text-[11px] text-orange-400 font-mono">24.8K posts today</span>
-        </div>
-      </div>
 
-      {/* Compose */}
-      <div className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] p-4">
-        <div className="flex gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-sm font-bold text-white shrink-0">SB</div>
-          <div className="flex-1">
-            <textarea
-              value={postText}
-              onChange={e => setPostText(e.target.value)}
-              placeholder="What's happening in the ShadowChat universe?"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/30 outline-none resize-none min-h-[60px]"
-              rows={2}
-            />
-            <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.06]">
-              <div className="flex gap-2">
-                <button className="p-1.5 rounded-lg hover:bg-white/10 text-white/30 hover:text-cyan-400 transition-colors">
-                  <Image className="w-4 h-4" />
-                </button>
-                <button className="p-1.5 rounded-lg hover:bg-white/10 text-white/30 hover:text-cyan-400 transition-colors">
-                  <Sparkles className="w-4 h-4" />
+        {/* Composer */}
+        <div className="rounded-2xl border border-white/[0.07] p-4"
+          style={{ background: "rgba(13,13,34,0.75)", backdropFilter: "blur(12px)" }}>
+          <div className="flex gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0"
+              style={{ background: "rgba(0,229,255,0.15)", border: "1px solid rgba(0,229,255,0.3)", color: "#00e5ff" }}>
+              {currentUser.name.slice(0, 2).toUpperCase()}
+            </div>
+            <div className="flex-1">
+              <textarea
+                value={postText}
+                onChange={e => setPostText(e.target.value)}
+                placeholder="What's happening in the ShadowChat universe?"
+                rows={2}
+                className="w-full bg-transparent text-[13px] text-white placeholder:text-white/25 outline-none resize-none leading-relaxed"
+                style={{ fontFamily: "Space Grotesk, sans-serif" }}
+              />
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/[0.06]">
+                <div className="flex items-center gap-1">
+                  {[Image, Hash, AtSign].map((Icon, i) => (
+                    <button key={i} onClick={() => toast.info("Feature coming soon")}
+                      className="p-1.5 rounded-lg text-white/25 hover:text-cyan-400 transition-colors">
+                      <Icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setPrivacy(p => p === "public" ? "followers" : p === "followers" ? "private" : "public")}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.08] text-[10px] text-white/40 hover:text-white/60 transition-colors ml-1">
+                    {privacy === "public" ? <Globe className="w-3 h-3" /> : privacy === "followers" ? <Users className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+                    <span className="ml-1">{privacy}</span>
+                  </button>
+                </div>
+                <button onClick={handlePost} disabled={!postText.trim()}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-[12px] font-semibold transition-all disabled:opacity-40"
+                  style={{ background: "linear-gradient(135deg, #00e5ff, #9b59ff)", color: "#050510", fontFamily: "Syne, sans-serif" }}>
+                  <Send className="w-3.5 h-3.5" />
+                  Post
                 </button>
               </div>
-              <button
-                onClick={handlePost}
-                disabled={!postText.trim()}
-                className="px-4 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-[12px] font-semibold hover:bg-cyan-500/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Post
-              </button>
             </div>
           </div>
         </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 rounded-xl border border-white/[0.07]"
+          style={{ background: "rgba(10,10,28,0.6)" }}>
+          {TABS.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={cn("flex-1 py-2 rounded-lg text-[11px] font-medium transition-all",
+                activeTab === tab
+                  ? "bg-white/[0.08] text-white border border-white/[0.1]"
+                  : "text-white/35 hover:text-white/60")}>
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Posts */}
+        <div className="space-y-3">
+          <AnimatePresence>
+            {posts.map((post, i) => <PostCard key={post.id} post={post as any} index={i} />)}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-lg bg-white/[0.04] border border-white/[0.06]">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "flex-1 py-1.5 rounded-md text-[12px] font-medium transition-all",
-              activeTab === tab
-                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/20"
-                : "text-white/40 hover:text-white/60"
-            )}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      {/* ── Right Sidebar ── */}
+      <div className="w-72 shrink-0 space-y-4 hidden lg:block">
+        {/* Trending */}
+        <div className="rounded-2xl border border-white/[0.07] p-4"
+          style={{ background: "rgba(13,13,34,0.75)", backdropFilter: "blur(12px)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[13px] font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Trending</h3>
+            <Flame className="w-4 h-4 text-orange-400" />
+          </div>
+          <div className="space-y-1">
+            {TRENDING.map((t, i) => (
+              <div key={t.tag} className="flex items-center justify-between py-2 cursor-pointer group rounded-lg px-2 hover:bg-white/[0.04] transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono text-white/20 w-4">{i + 1}</span>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[12px] font-semibold text-white group-hover:text-cyan-400 transition-colors">{t.tag}</span>
+                      {t.hot && <Flame className="w-3 h-3 text-orange-400" />}
+                    </div>
+                    <span className="text-[10px] text-white/30">{t.posts} posts</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono text-green-400">{t.change}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Posts */}
-      <div className="space-y-3">
-        {posts.map((post, i) => (
-          <PostCard key={post.id} post={post as any} index={i} />
-        ))}
+        {/* Suggested users */}
+        <div className="rounded-2xl border border-white/[0.07] p-4"
+          style={{ background: "rgba(13,13,34,0.75)", backdropFilter: "blur(12px)" }}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[13px] font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Suggested</h3>
+            <ArrowUpRight className="w-4 h-4 text-white/30" />
+          </div>
+          <div className="space-y-3">
+            {SUGGESTED_USERS.map(s => (
+              <div key={s.handle} className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-base"
+                    style={{ background: "rgba(155,89,255,0.15)", border: "1px solid rgba(155,89,255,0.25)" }}>
+                    {s.avatar}
+                  </div>
+                  <div>
+                    <div className="text-[12px] font-semibold text-white">{s.name}</div>
+                    <div className="text-[10px] text-white/35">{s.followers} followers</div>
+                  </div>
+                </div>
+                <button onClick={() => toast.success(`Following ${s.name}!`)}
+                  className="text-[10px] font-semibold px-2.5 py-1 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-colors">
+                  Follow
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Score info */}
+        <div className="rounded-2xl border border-cyan-500/15 p-4"
+          style={{ background: "rgba(0,229,255,0.04)" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-[11px] font-bold text-white">AI Ranking Score</span>
+          </div>
+          <p className="text-[10px] text-white/40 leading-relaxed">
+            HOPE AI scores each post 0–100 based on engagement velocity, content quality, sentiment, and relevance to your interests.
+          </p>
+          <div className="mt-3 flex items-center gap-1.5">
+            <Zap className="w-3 h-3 text-amber-400" />
+            <span className="text-[10px] text-amber-400 font-mono">Real-time re-ranking every 60s</span>
+          </div>
+        </div>
       </div>
     </div>
   );
