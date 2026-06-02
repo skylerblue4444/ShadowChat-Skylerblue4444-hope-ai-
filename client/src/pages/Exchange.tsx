@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { useOrderBookStream } from "@/hooks/useSocket";
 /**
  * ShadowChat Ultimate — Exchange / DEX
  * Live CoinGecko prices, real order book, Phantom/MetaMask wallet connect,
@@ -43,6 +44,7 @@ export default function Exchange() {
   const livePrice = currentCoin?.current_price ?? 0;
   const change24h = currentCoin?.price_change_percentage_24h ?? 0;
   const { price: streamPrice, trades } = usePriceStream(livePrice, selectedPair.base);
+  const { price: socketPrice, trades: socketTrades, connected: wsConnected } = useOrderBookStream(`${selectedPair.base}/${selectedPair.quote}`);
 
   useEffect(() => {
     if (!livePrice) return;

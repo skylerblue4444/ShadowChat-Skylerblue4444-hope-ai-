@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
-import { datingProfiles, matches, users } from "../../drizzle/schema";
+import { datingProfiles, matches, users, conversations, conversationMembers } from "../../drizzle/schema";
 import { eq, and, desc, sql, ne } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 
@@ -126,6 +126,32 @@ export const datingRouter = router({
   }),
 
   // AI compatibility analysis
+  // Start chat with a match
+  startMatchChat: protectedProcedure
+    .input(z.object({ matchId: z.number(), targetId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      // Check if conversation already exists via conversationMembers
+      const myConvs = await db!.select({ conversationId: conversationMembers.conversationId })
+        .from(conversationMembers).where(eq(conversationMembers.userId, ctx.user.id));
+      const theirConvs = await db!.select({ conversationId: conversationMembers.conversationId })
+        .from(conversationMembers).where(eq(conversationMembers.userId, input.targetId));
+      const myIds = new Set(myConvs.map(c => c.conversationId));
+      const shared = theirConvs.find(c => myIds.has(c.conversationId));
+      if (shared) return { conversationId: shared.conversationId };
+      // Create new conversation
+      const [conv] = await db!.insert(conversations).values({
+        name: `Match Chat`,
+        isGroup: false,
+        isEncrypted: true,
+      }).$returningId();
+      await db!.insert(conversationMembers).values([
+        { conversationId: conv.id, userId: ctx.user.id, role: "admin" },
+        { conversationId: conv.id, userId: input.targetId, role: "member" },
+      ]);
+      return { conversationId: conv.id };
+    }),
+
   analyzeCompatibility: protectedProcedure
     .input(z.object({ targetId: z.number() }))
     .mutation(async ({ ctx, input }) => {
@@ -142,3 +168,4 @@ export const datingRouter = router({
       }
     }),
 });
+
