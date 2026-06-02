@@ -13,6 +13,15 @@ import { notificationsRouter } from "./routers/notifications";
 import { adminRouter } from "./routers/admin";
 import { analyticsRouter } from "./routers/analytics";
 import { profileRouter } from "./routers/profile";
+import { eventBusRouter } from "./routers/eventBus";
+import { knowledgeRouter } from "./routers/knowledge";
+import { workflowRouter } from "./routers/workflow";
+import { searchRouter } from "./routers/search";
+import { securityRouter } from "./routers/security";
+import { developerRouter } from "./routers/developer";
+import { digitalTwinRouter } from "./routers/digitalTwin";
+import { observabilityRouter } from "./routers/observability";
+import { treasuryRouter } from "./routers/treasury";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -40,6 +49,17 @@ export const appRouter = router({
   admin: adminRouter,
   analytics: analyticsRouter,
   profile: profileRouter,
+
+  // Enterprise platform routers
+  eventBus: eventBusRouter,
+  knowledge: knowledgeRouter,
+  workflow: workflowRouter,
+  search: searchRouter,
+  security: securityRouter,
+  developer: developerRouter,
+  digitalTwin: digitalTwinRouter,
+  observability: observabilityRouter,
+  treasury: treasuryRouter,
 });
 
 export type AppRouter = typeof appRouter;

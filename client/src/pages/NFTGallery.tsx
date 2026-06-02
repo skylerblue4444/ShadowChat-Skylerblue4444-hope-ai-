@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { Image, Plus, TrendingUp, Star, ShoppingCart, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ const NFTS = [
 const RARITY_COLORS: Record<string,string> = {Legendary:"text-amber-400 bg-amber-500/10 border-amber-500/20",Epic:"text-purple-400 bg-purple-500/10 border-purple-500/20",Mythic:"text-pink-400 bg-pink-500/10 border-pink-500/20",Rare:"text-cyan-400 bg-cyan-500/10 border-cyan-500/20"};
 
 export default function NFTGallery() {
+  const { data: nftListings } = trpc.marketplace.getListings.useQuery({ limit: 20 });
   const [tab, setTab] = useState("My Collection");
   const TABS = ["My Collection","Marketplace","Create","Analytics"];
   const nfts = tab==="My Collection" ? NFTS.filter(n=>n.owner==="You") : NFTS;

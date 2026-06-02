@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { User, Star, Shield, Edit3, Activity, Cpu, TrendingUp, Users, MessageSquare, Heart } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -5,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function Profile() {
+  const { data: profile } = trpc.profile.getMe.useQuery();
   const { user: currentUser } = useAuth();
   if (!currentUser) return null;
   const [editing, setEditing] = useState(false);

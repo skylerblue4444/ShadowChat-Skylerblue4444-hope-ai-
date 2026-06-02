@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { Settings as SettingsIcon, User, Bell, Shield, Palette, Globe, CreditCard, Cpu, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -14,6 +15,7 @@ const SECTIONS = [
 ];
 
 export default function Settings() {
+  const { data: profile } = trpc.profile.getMe.useQuery();
   const { user: currentUser } = useAuth();
   if (!currentUser) return null;
   const [section, setSection] = useState("account");

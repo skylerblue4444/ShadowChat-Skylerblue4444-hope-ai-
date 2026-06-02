@@ -1,5 +1,10 @@
+import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 export default function DigitalTwin() {
+  const { data: twin } = trpc.digitalTwin.get.useQuery();
+  const { data: earnings } = trpc.digitalTwin.earnings.useQuery();
+  const analyzeMut = trpc.digitalTwin.analyze.useMutation();
+  const simulateMut = trpc.digitalTwin.simulate.useMutation();
   return (
     <div className="p-5 max-w-[1000px] space-y-5">
       <div>

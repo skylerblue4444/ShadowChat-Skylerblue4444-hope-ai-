@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 import { useState, useRef, useEffect } from "react";
 import { Send, Search, Phone, Video, MoreHorizontal, Smile, Paperclip, Lock, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ const INIT_MSGS: Record<string,{role:"me"|"them",text:string,time:string}[]> = {
 };
 
 export default function Messaging() {
+  const { data: conversations } = trpc.messaging.getConversations.useQuery();
   const [activeContact, setActiveContact] = useState("c1");
   const [messages, setMessages] = useState(INIT_MSGS);
   const [input, setInput] = useState("");

@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 /**
  * ShadowChat Ultimate — Exchange / DEX
  * Live CoinGecko prices, real order book, Phantom/MetaMask wallet connect,
@@ -23,6 +24,7 @@ const PAIRS = [
 ];
 
 export default function Exchange() {
+  const { data: priceData } = trpc.exchange.getPrice.useQuery({ coinId: "bitcoin" });
   const { prices, loading: pricesLoading, lastUpdated, refetch } = useLivePrices();
   const [selectedPair, setSelectedPair] = useState(PAIRS[3]);
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -167,7 +169,7 @@ export default function Exchange() {
                 <div className="grid grid-cols-3 px-3 py-1.5 text-[9px] text-white/30 font-mono border-b border-white/[0.05]">
                   <span>PRICE</span><span className="text-right">SIZE</span><span className="text-right">TOTAL</span>
                 </div>
-                {orderBook.asks.slice(0, 8).reverse().map((ask, i) => (
+                {orderBook.asks.slice(0, 8).reverse().map((ask: any, i: number) => (
                   <div key={i} className="relative grid grid-cols-3 px-3 py-1 text-[10px] font-mono hover:bg-red-500/5">
                     <div className="absolute right-0 top-0 h-full bg-red-500/8"
                       style={{ width: `${Math.min((ask.total / (orderBook.asks[orderBook.asks.length - 1].total || 1)) * 100, 100)}%` }} />
@@ -181,7 +183,7 @@ export default function Exchange() {
                     ${displayPrice.toFixed(4)}
                   </span>
                 </div>
-                {orderBook.bids.slice(0, 8).map((bid, i) => (
+                {orderBook.bids.slice(0, 8).map((bid: any, i: number) => (
                   <div key={i} className="relative grid grid-cols-3 px-3 py-1 text-[10px] font-mono hover:bg-green-500/5">
                     <div className="absolute right-0 top-0 h-full bg-green-500/8"
                       style={{ width: `${Math.min((bid.total / (orderBook.bids[orderBook.bids.length - 1].total || 1)) * 100, 100)}%` }} />
@@ -195,7 +197,7 @@ export default function Exchange() {
                 <div className="grid grid-cols-3 px-3 py-1.5 text-[9px] text-white/30 font-mono border-b border-white/[0.05]">
                   <span>PRICE</span><span className="text-right">SIZE</span><span className="text-right">TIME</span>
                 </div>
-                {recentTrades.slice(0, 16).map((t, i) => (
+                {recentTrades.slice(0, 16).map((t: any, i: number) => (
                   <div key={i} className="grid grid-cols-3 px-3 py-1 text-[10px] font-mono">
                     <span className={t.side === "buy" ? "text-green-400" : "text-red-400"}>{t.price.toFixed(4)}</span>
                     <span className="text-right text-white/60">{t.size.toFixed(0)}</span>

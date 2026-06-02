@@ -1,5 +1,7 @@
+import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 export default function FeatureFlags() {
+  const { data: flags } = trpc.admin.getFeatureFlags.useQuery();
   return (
     <div className="p-5 max-w-[1000px] space-y-5">
       <div>

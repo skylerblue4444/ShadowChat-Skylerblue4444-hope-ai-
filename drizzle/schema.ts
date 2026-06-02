@@ -416,6 +416,236 @@ export const securityLogs = mysqlTable("securityLogs", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (t) => [index("sec_userId_idx").on(t.userId)]);
 
+// ─── EVENT BUS ────────────────────────────────────────────────────────────────
+export const domainEvents = mysqlTable("domainEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  type: varchar("type", { length: 128 }).notNull(),
+  source: varchar("source", { length: 64 }).notNull(),
+  actorId: int("actorId"),
+  entityType: varchar("entityType", { length: 64 }),
+  entityId: int("entityId"),
+  payload: json("payload"),
+  metadata: json("metadata"),
+  processedAt: timestamp("processedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (t) => [index("events_type_idx").on(t.type), index("events_source_idx").on(t.source)]);
+
+export const eventSubscriptions = mysqlTable("eventSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  subscriberId: varchar("subscriberId", { length: 128 }).notNull(),
+  eventType: varchar("eventType", { length: 128 }).notNull(),
+  webhookUrl: text("webhookUrl"),
+  isActive: boolean("isActive").default(true),
+  lastTriggeredAt: timestamp("lastTriggeredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ─── AI MEMORY & KNOWLEDGE ───────────────────────────────────────────────────
+export const aiMemory = mysqlTable("aiMemory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  agentId: int("agentId"),
+  scope: mysqlEnum("scope", ["user", "agent", "team", "organization", "global"]).default("user"),
+  key: varchar("key", { length: 256 }).notNull(),
+  value: text("value").notNull(),
+  embedding: json("embedding").$type<number[]>(),
+  importance: decimal("importance", { precision: 5, scale: 2 }).default("0.50"),
+  accessCount: int("accessCount").default(0),
+  lastAccessedAt: timestamp("lastAccessedAt"),
+  expiresAt: timestamp("expiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (t) => [index("memory_userId_idx").on(t.userId)]);
+
+export const knowledgeDocuments = mysqlTable("knowledgeDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  content: text("content").notNull(),
+  sourceUrl: text("sourceUrl"),
+  docType: mysqlEnum("docType", ["document", "webpage", "api_doc", "faq", "policy", "manual"]).default("document"),
+  tags: json("tags").$type<string[]>(),
+  chunkCount: int("chunkCount").default(0),
+  isIndexed: boolean("isIndexed").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const knowledgeChunks = mysqlTable("knowledgeChunks", {
+  id: int("id").autoincrement().primaryKey(),
+  documentId: int("documentId").notNull(),
+  content: text("content").notNull(),
+  embedding: json("embedding").$type<number[]>(),
+  chunkIndex: int("chunkIndex").default(0),
+  tokenCount: int("tokenCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (t) => [index("chunks_docId_idx").on(t.documentId)]);
+
+// ─── WORKFLOW ENGINE ─────────────────────────────────────────────────────────
+export const workflows = mysqlTable("workflows", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  name: varchar("name", { length: 256 }).notNull(),
+  description: text("description"),
+  trigger: mysqlEnum("trigger", ["manual", "event", "schedule", "webhook", "ai"]).default("manual"),
+  triggerConfig: json("triggerConfig"),
+  steps: json("steps").$type<Array<{ id: string; type: string; config: Record<string, unknown>; next?: string }>>(),
+  isActive: boolean("isActive").default(false),
+  lastRunAt: timestamp("lastRunAt"),
+  runCount: int("runCount").default(0),
+  successCount: int("successCount").default(0),
+  failCount: int("failCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const workflowRuns = mysqlTable("workflowRuns", {
+  id: int("id").autoincrement().primaryKey(),
+  workflowId: int("workflowId").notNull(),
+  status: mysqlEnum("status", ["running", "completed", "failed", "cancelled"]).default("running"),
+  triggeredBy: varchar("triggeredBy", { length: 128 }),
+  input: json("input"),
+  output: json("output"),
+  error: text("error"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+}, (t) => [index("runs_workflowId_idx").on(t.workflowId)]);
+
+// ─── GLOBAL SEARCH INDEX ─────────────────────────────────────────────────────
+export const searchIndex = mysqlTable("searchIndex", {
+  id: int("id").autoincrement().primaryKey(),
+  entityType: varchar("entityType", { length: 64 }).notNull(),
+  entityId: int("entityId").notNull(),
+  title: varchar("title", { length: 512 }).notNull(),
+  content: text("content"),
+  tags: json("tags").$type<string[]>(),
+  authorId: int("authorId"),
+  score: decimal("score", { precision: 10, scale: 4 }).default("0"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (t) => [index("search_entity_idx").on(t.entityType, t.entityId)]);
+
+// ─── DEVELOPER ECOSYSTEM ─────────────────────────────────────────────────────
+export const apiKeys = mysqlTable("apiKeys", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  keyHash: varchar("keyHash", { length: 256 }).notNull(),
+  keyPrefix: varchar("keyPrefix", { length: 12 }).notNull(),
+  scopes: json("scopes").$type<string[]>(),
+  rateLimit: int("rateLimit").default(1000),
+  usageCount: int("usageCount").default(0),
+  lastUsedAt: timestamp("lastUsedAt"),
+  expiresAt: timestamp("expiresAt"),
+  isActive: boolean("isActive").default(true),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const webhooks = mysqlTable("webhooks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  url: text("url").notNull(),
+  events: json("events").$type<string[]>(),
+  secret: varchar("secret", { length: 256 }),
+  isActive: boolean("isActive").default(true),
+  failCount: int("failCount").default(0),
+  lastTriggeredAt: timestamp("lastTriggeredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const plugins = mysqlTable("plugins", {
+  id: int("id").autoincrement().primaryKey(),
+  developerId: int("developerId").notNull(),
+  name: varchar("name", { length: 128 }).notNull(),
+  slug: varchar("slug", { length: 128 }).notNull().unique(),
+  description: text("description"),
+  version: varchar("version", { length: 32 }).default("1.0.0"),
+  category: mysqlEnum("category", ["ai", "trading", "social", "analytics", "security", "utility"]).default("utility"),
+  iconUrl: text("iconUrl"),
+  installCount: int("installCount").default(0),
+  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
+  isPublished: boolean("isPublished").default(false),
+  isVerified: boolean("isVerified").default(false),
+  config: json("config"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+// ─── SESSIONS & SECURITY CENTER ──────────────────────────────────────────────
+export const userSessions = mysqlTable("userSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  deviceName: varchar("deviceName", { length: 128 }),
+  deviceType: varchar("deviceType", { length: 32 }),
+  browser: varchar("browser", { length: 64 }),
+  os: varchar("os", { length: 64 }),
+  ipAddress: varchar("ipAddress", { length: 64 }),
+  location: varchar("location", { length: 128 }),
+  isCurrent: boolean("isCurrent").default(false),
+  lastActiveAt: timestamp("lastActiveAt").defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+}, (t) => [index("sessions_userId_idx").on(t.userId)]);
+
+export const threatEvents = mysqlTable("threatEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  type: mysqlEnum("type", ["brute_force", "suspicious_login", "api_abuse", "data_exfil", "privilege_escalation", "anomaly"]).notNull(),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).default("medium"),
+  description: text("description"),
+  sourceIp: varchar("sourceIp", { length: 64 }),
+  isResolved: boolean("isResolved").default(false),
+  resolvedBy: int("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
+  metadata: json("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (t) => [index("threats_userId_idx").on(t.userId)]);
+
+// ─── OBSERVABILITY ───────────────────────────────────────────────────────────
+export const platformMetrics = mysqlTable("platformMetrics", {
+  id: int("id").autoincrement().primaryKey(),
+  metric: varchar("metric", { length: 128 }).notNull(),
+  value: decimal("value", { precision: 20, scale: 4 }).notNull(),
+  tags: json("tags").$type<Record<string, string>>(),
+  recordedAt: timestamp("recordedAt").defaultNow().notNull(),
+});
+
+export const errorReports = mysqlTable("errorReports", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId"),
+  module: varchar("module", { length: 64 }).notNull(),
+  message: text("message").notNull(),
+  stack: text("stack"),
+  severity: mysqlEnum("severity", ["info", "warning", "error", "fatal"]).default("error"),
+  count: int("count").default(1),
+  lastOccurredAt: timestamp("lastOccurredAt").defaultNow(),
+  isResolved: boolean("isResolved").default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+// ─── ENTERPRISE FINANCE ──────────────────────────────────────────────────────
+export const treasuryAccounts = mysqlTable("treasuryAccounts", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 128 }).notNull(),
+  type: mysqlEnum("type", ["operating", "reserve", "staking", "grants", "development"]).default("operating"),
+  balance: decimal("balance", { precision: 20, scale: 8 }).default("0"),
+  currency: varchar("currency", { length: 16 }).default("SKY"),
+  lastAuditAt: timestamp("lastAuditAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const revenueEvents = mysqlTable("revenueEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  source: mysqlEnum("source", ["trading_fees", "subscriptions", "nft_royalties", "marketplace", "ai_services", "staking", "ads"]).notNull(),
+  amount: decimal("amount", { precision: 20, scale: 8 }).notNull(),
+  currency: varchar("currency", { length: 16 }).default("SKY"),
+  userId: int("userId"),
+  metadata: json("metadata"),
+  recordedAt: timestamp("recordedAt").defaultNow().notNull(),
+});
+
 // ─── EXPORTS ──────────────────────────────────────────────────────────────────
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;

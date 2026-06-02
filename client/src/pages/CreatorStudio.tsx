@@ -1,3 +1,4 @@
+import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { Video, Music, Image, FileText, Play, Upload, TrendingUp, DollarSign, Star, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ const MY_CONTENT = [
 ];
 
 export default function CreatorStudio() {
+  const { data: myPosts } = trpc.social.getFeed.useQuery({ limit: 10 });
   const [tab, setTab] = useState("Dashboard");
   const [aiPrompt, setAiPrompt] = useState("");
   const TABS = ["Dashboard","Create","Monetize","Analytics","AI Studio"];

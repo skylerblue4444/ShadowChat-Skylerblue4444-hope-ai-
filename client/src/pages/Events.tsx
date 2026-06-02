@@ -1,5 +1,7 @@
+import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 export default function Events() {
+  const { data: eventBusStats } = trpc.eventBus.stats.useQuery();
   return (
     <div className="p-5 max-w-[1000px] space-y-5">
       <div>
