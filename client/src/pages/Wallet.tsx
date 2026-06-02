@@ -10,7 +10,10 @@ import {
   TrendingDown, Copy, QrCode, Flame, Lock, Coins, RefreshCw, Plus,
   CheckCircle2, Clock, AlertCircle
 } from "lucide-react";
-import { TOKENS, formatCurrency, generateSparkline } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
+const generateSparkline = (points = 12, base = 100, range = 10) => Array.from({ length: points }, () => base + (Math.random() - 0.5) * range * 2);
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
@@ -34,6 +37,14 @@ const CHART_DATA = Array.from({ length: 30 }, (_, i) => ({
   day: i + 1,
   value: 120000 + Math.sin(i * 0.4) * 20000 + i * 800 + Math.random() * 5000,
 }));
+
+const TOKENS = [
+  { symbol: "SKYCOIN", name: "ShadowChat Token", balance: 4444444, price: 0.044, change: 4.4, color: "#00e5ff" },
+  { symbol: "BTC", name: "Bitcoin", balance: 0.42, price: 67000, change: 2.1, color: "#f7931a" },
+  { symbol: "ETH", name: "Ethereum", balance: 4.4, price: 3200, change: -0.8, color: "#627eea" },
+  { symbol: "SOL", name: "Solana", balance: 44, price: 180, change: 5.2, color: "#9945ff" },
+  { symbol: "USDT", name: "Tether", balance: 4444, price: 1, change: 0, color: "#26a17b" },
+];
 
 function TokenRow({ token }: { token: typeof TOKENS[0] }) {
   const spark = generateSparkline(20, token.price, token.price * 0.04);

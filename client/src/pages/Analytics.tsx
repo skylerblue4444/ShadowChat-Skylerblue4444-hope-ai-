@@ -1,8 +1,22 @@
 import { useState } from "react";
 import { AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { BarChart3, TrendingUp, Users, DollarSign, Activity, Eye, Heart, Share2 } from "lucide-react";
-import { ANALYTICS_DATA, formatCurrency, formatNumber } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
+const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
+const formatNumber = (n: number) => new Intl.NumberFormat('en-US', { notation: 'compact' }).format(n);
 import { cn } from "@/lib/utils";
+
+const ANALYTICS_DATA = {
+  monthlyRevenue: Array.from({ length: 12 }, (_, i) => ({ month: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i], revenue: 50000 + i * 8000, users: 1000 + i * 150 })),
+  dailyUsers: Array.from({ length: 30 }, (_, i) => ({ day: i + 1, users: 800 + i * 30 + Math.floor(Math.random() * 100) })),
+  moduleUsage: [{ name: "AI Core", usage: 88, color: "#00e5ff", value: 88 }, { name: "Exchange", usage: 72, color: "#9c27b0", value: 72 }, { name: "Social", usage: 65, color: "#4caf50", value: 65 }, { name: "Marketplace", usage: 44, color: "#ff9800", value: 44 }, { name: "Governance", usage: 38, color: "#f44336", value: 38 }],
+  revenueStreams: [{ name: "Trading Fees", value: 480000, color: "#00e5ff" }, { name: "AI Subscriptions", value: 320000, color: "#9c27b0" }, { name: "NFT Royalties", value: 240000, color: "#4caf50" }, { name: "Staking", value: 200000, color: "#ff9800" }],
+  totalRevenue: 1_240_000,
+  totalUsers: 44444,
+  activeUsers: 8888,
+  totalTrades: 444444,
+};
+
 
 const TABS = ["Overview", "Revenue", "Users", "Content", "AI Insights"];
 

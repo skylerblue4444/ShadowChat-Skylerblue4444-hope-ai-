@@ -52,7 +52,7 @@ const BAR_COUNT = 32;
 function AudioWave({ listening, analyserRef }: { listening: boolean; analyserRef: React.RefObject<AnalyserNode | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
-  const dataRef = useRef<Uint8Array>(new Uint8Array(BAR_COUNT));
+  const dataRef = useRef(new Uint8Array(BAR_COUNT));
 
   useEffect(() => {
     const canvas = canvasRef.current;

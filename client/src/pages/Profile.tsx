@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { User, Star, Shield, Edit3, Activity, Cpu, TrendingUp, Users, MessageSquare, Heart } from "lucide-react";
-import { useAppStore } from "@/store";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export default function Profile() {
-  const { currentUser } = useAppStore();
+  const { user: currentUser } = useAuth();
+  if (!currentUser) return null;
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(currentUser.name);
+  const [name, setName] = useState(currentUser.name || '');
   const [bio, setBio] = useState("Building the future with HOPE AI × ShadowChat × SKYCOIN4444. Software Engineer. Digital Economy Architect.");
   const TABS = ["Posts","About","Digital Twin","Activity"];
   const [tab, setTab] = useState("Posts");
@@ -18,7 +19,7 @@ export default function Profile() {
         <div className="px-5 pb-5">
           <div className="flex items-end justify-between -mt-8 mb-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-xl font-bold text-white border-4 border-[oklch(0.11_0.01_265)]">
-              {currentUser.avatar}
+              {(currentUser as any)?.avatar || currentUser?.name?.[0] || '?'}
             </div>
             <button onClick={()=>setEditing(p=>!p)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-white/60 hover:text-white text-[11px] transition-colors">
               <Edit3 className="w-3.5 h-3.5"/> Edit Profile
@@ -26,10 +27,10 @@ export default function Profile() {
           </div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-lg font-bold text-white">{name}</h1>
-            {currentUser.verified && <Shield className="w-4 h-4 text-cyan-400 fill-cyan-400"/>}
+            {(currentUser as any)?.isVerified || false && <Shield className="w-4 h-4 text-cyan-400 fill-cyan-400"/>}
             <span className="text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-mono">{currentUser.role.toUpperCase()}</span>
           </div>
-          <div className="text-[12px] text-white/40 mb-3">{currentUser.handle}</div>
+          <div className="text-[12px] text-white/40 mb-3">{currentUser?.username || currentUser?.name?.toLowerCase().replace(' ', '') || 'user'}</div>
           {editing ? (
             <div className="space-y-2 mb-3">
               <input value={name} onChange={e=>setName(e.target.value)} className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-cyan-500/40"/>
@@ -44,9 +45,9 @@ export default function Profile() {
           )}
           <div className="grid grid-cols-4 gap-3">
             {[
-              {label:"Followers",value:currentUser.followers.toLocaleString()},
-              {label:"Following",value:currentUser.following},
-              {label:"Reputation",value:currentUser.reputation.toLocaleString()},
+              {label:"Followers",value:((currentUser as any)?.followers ?? 0).toLocaleString()},
+              {label:"Following",value:((currentUser as any)?.following ?? 0)},
+              {label:"Reputation",value:((currentUser as any)?.reputation ?? 0).toLocaleString()},
               {label:"SKYCOIN",value:"4.44M"},
             ].map(s=>(
               <div key={s.label} className="text-center p-2 rounded-lg bg-white/[0.03]">

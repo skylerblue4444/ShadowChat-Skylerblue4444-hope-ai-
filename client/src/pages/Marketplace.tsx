@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, Search, Filter, Star, TrendingUp, Plus, ShoppingCart } from "lucide-react";
-import { MARKETPLACE_ITEMS, formatCurrency } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
+const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const MARKETPLACE_ITEMS = [
+  { id: "n1", name: "Shadow Genesis #001", price: 4.44, currency: "ETH", image: "🌑", rarity: "Legendary", creator: "ShadowArtist", seller: "0xSKY4444", category: "Art", likes: 444, views: 4444, sales: 12, rating: 4.9 },
+  { id: "n2", name: "HOPE AI Oracle", price: 2.88, currency: "ETH", image: "🔮", rarity: "Epic", creator: "HopeDAO", seller: "0xHOPE444", category: "AI", likes: 288, views: 2888, sales: 8, rating: 4.8 },
+  { id: "n3", name: "Quantum Void #444", price: 1.44, currency: "ETH", image: "✨", rarity: "Rare", creator: "QuantumMint", seller: "0xQUANTUM", category: "Abstract", likes: 144, views: 1444, sales: 5, rating: 4.6 },
+  { id: "n4", name: "Neon Shadow #888", price: 0.88, currency: "ETH", image: "🌊", rarity: "Uncommon", creator: "NeonArt", seller: "0xNEON888", category: "Digital", likes: 88, views: 888, sales: 3, rating: 4.4 },
+  { id: "n5", name: "Dark Matter #777", price: 3.33, currency: "ETH", image: "🌌", rarity: "Legendary", creator: "DarkMatter", seller: "0xDARK777", category: "Space", likes: 333, views: 3333, sales: 10, rating: 4.7 },
+  { id: "n6", name: "Cyber Phoenix #222", price: 1.11, currency: "ETH", image: "🦅", rarity: "Rare", creator: "CyberArt", seller: "0xCYBER222", category: "Cyber", likes: 222, views: 2222, sales: 6, rating: 4.5 },
+];
+
 
 const CATS = ["All", "Digital Goods", "Luxury", "SaaS", "AI Tools", "Security", "Analytics"];
 

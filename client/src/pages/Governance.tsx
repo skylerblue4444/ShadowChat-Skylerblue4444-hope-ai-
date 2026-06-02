@@ -6,10 +6,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Vote, CheckCircle2, XCircle, Clock, Users, TrendingUp, Plus, Zap, Wallet, ExternalLink } from "lucide-react";
-import { GOVERNANCE_PROPOSALS } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { calculateVotingPower, checkQuorum, getProposalResult, connectPhantom, connectEVMWallet } from "@/lib/web3";
+
+const GOVERNANCE_PROPOSALS = [
+  { id: "p1", title: "Increase SKYCOIN Staking APY to 44%", description: "Proposal to boost staking rewards for all SKY444 holders to 44% APY, funded by protocol treasury.", proposer: "0xSKY4444", ends: "Jun 15, 2026", status: "active" as const, votes: { yes: 444444, no: 88888 }, quorum: 500000 },
+  { id: "p2", title: "Launch ShadowChat NFT Marketplace V2", description: "Deploy upgraded NFT marketplace with royalty splits, bulk listings, and cross-chain support.", proposer: "0xHOPE444", ends: "Jun 20, 2026", status: "active" as const, votes: { yes: 288000, no: 44000 }, quorum: 300000 },
+  { id: "p3", title: "Burn 4.4M SKYCOIN from Treasury", description: "Deflationary burn event to reduce supply and increase token value for all holders.", proposer: "0xSHADOW44", ends: "May 30, 2026", status: "passed" as const, votes: { yes: 680000, no: 120000 }, quorum: 500000 },
+  { id: "p4", title: "Integrate AI Governance Advisor", description: "Deploy HOPE AI to analyze proposals and provide risk assessments before voting closes.", proposer: "0xAI_ORACLE", ends: "May 25, 2026", status: "passed" as const, votes: { yes: 520000, no: 80000 }, quorum: 400000 },
+];
 
 export default function Governance() {
   const [voted, setVoted] = useState<Record<string, string>>({});

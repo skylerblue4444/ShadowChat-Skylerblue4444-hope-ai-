@@ -1,8 +1,20 @@
 import { useState } from "react";
 import { Compass, TrendingUp, Users, Star, Search, Sparkles } from "lucide-react";
-import { FEED_POSTS, MARKETPLACE_ITEMS } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const FEED_POSTS = [
+  { id: "p1", user: "HOPE AI", handle: "@hopeai", avatar: "🔮", content: "The future of AI is decentralized. ShadowChat is leading the way. #SKYCOIN #AI", likes: 4444, comments: 444, shares: 44, time: "2m ago", verified: true, trending: true, tags: ["#SKYCOIN", "#AI"] },
+  { id: "p2", user: "Shadow Witch", handle: "@shadowwitch", avatar: "🧙‍♀️", content: "Just staked 100K SKYCOIN at 44% APY. The yield is insane! 🚀", likes: 2888, comments: 288, shares: 28, time: "15m ago", verified: false, trending: false, tags: ["#Staking"] },
+  { id: "p3", user: "Crypto Samurai", handle: "@cryptosamurai", avatar: "⚔️", content: "ShadowDAO governance vote passing with 88% YES. The community has spoken!", likes: 1888, comments: 188, shares: 18, time: "1h ago", verified: true, trending: true, tags: ["#DAO", "#Governance"] },
+];
+const MARKETPLACE_ITEMS = [
+  { id: "n1", name: "Shadow Genesis #001", price: 4.44, currency: "ETH", image: "🌑", rarity: "Legendary", creator: "ShadowArtist" },
+  { id: "n2", name: "HOPE AI Oracle", price: 2.88, currency: "ETH", image: "🔮", rarity: "Epic", creator: "HopeDAO" },
+  { id: "n3", name: "Quantum Void #444", price: 1.44, currency: "ETH", image: "✨", rarity: "Rare", creator: "QuantumMint" },
+];
+
 
 const TRENDING_TOPICS = ["#SKYCOIN4444","#HOPEAI","#ShadowChat","#DeFi","#AITrading","#DAO","#Web3","#NFT","#TRUMP","#Governance"];
 const TOP_CREATORS = [
@@ -45,7 +57,7 @@ export default function Explore() {
           <div className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] p-4">
             <h3 className="text-[13px] font-semibold text-white mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-cyan-400"/> AI Picks for You</h3>
             <div className="space-y-3">
-              {FEED_POSTS.slice(0,3).map(p=>(
+              {FEED_POSTS.slice(0,3).map((p: any)=>(
                 <div key={p.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer">
                   <div className="text-[11px] font-semibold text-white mb-1">{p.user}</div>
                   <p className="text-[11px] text-white/50 line-clamp-2">{p.content}</p>
@@ -77,7 +89,7 @@ export default function Explore() {
       )}
       {["Marketplace","AI Picks"].includes(tab) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MARKETPLACE_ITEMS.slice(0,6).map(item=>(
+          {MARKETPLACE_ITEMS.slice(0,6).map((item: any)=>(
             <div key={item.id} className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] p-4 hover:border-white/[0.15] transition-all">
               <div className="text-4xl mb-3">{item.image}</div>
               <div className="text-[12px] font-semibold text-white">{item.name}</div>

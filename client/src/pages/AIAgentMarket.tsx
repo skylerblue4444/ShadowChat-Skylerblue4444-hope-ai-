@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { Bot, Play, Pause, TrendingUp, Plus, Zap, Star, DollarSign } from "lucide-react";
-import { AI_AGENTS } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const AI_AGENTS = [
+  { id: "a1", name: "HOPE Oracle", icon: "🔮", category: "Trading", description: "AI-powered price prediction with 88% accuracy. Analyzes on-chain data, sentiment, and market patterns.", price: 444, currency: "SKYCOIN", rating: 4.9, users: 4444, verified: true, status: "active", tags: ["Trading", "Prediction", "DeFi"], tasks: 44444, accuracy: 88, earnings: 4444 },
+  { id: "a2", name: "Shadow Analyst", icon: "🕵️", category: "Research", description: "Deep research agent that scans 10,000+ data sources for alpha and market insights.", price: 288, currency: "SKYCOIN", rating: 4.7, users: 2888, verified: true, status: "active", tags: ["Research", "Alpha", "Analysis"], tasks: 28888, accuracy: 84, earnings: 2888 },
+  { id: "a3", name: "Quantum Trader", icon: "⚡", category: "Automation", description: "Automated trading bot with MEV protection and cross-chain arbitrage capabilities.", price: 888, currency: "SKYCOIN", rating: 4.8, users: 1888, verified: false, status: "beta", tags: ["Automation", "MEV", "Arbitrage"], tasks: 18888, accuracy: 91, earnings: 8888 },
+  { id: "a4", name: "DAO Advisor", icon: "🏛️", category: "Governance", description: "Analyzes governance proposals and provides risk assessments and voting recommendations.", price: 144, currency: "SKYCOIN", rating: 4.6, users: 1444, verified: true, status: "active", tags: ["Governance", "DAO", "Risk"], tasks: 14444, accuracy: 79, earnings: 1444 },
+  { id: "a5", name: "NFT Scout", icon: "🎨", category: "NFT", description: "Identifies undervalued NFTs and predicts floor price movements across all major collections.", price: 222, currency: "SKYCOIN", rating: 4.5, users: 2222, verified: false, status: "active", tags: ["NFT", "Scouting", "Prediction"], tasks: 22222, accuracy: 76, earnings: 2222 },
+  { id: "a6", name: "Social Sentinel", icon: "📡", category: "Social", description: "Monitors social sentiment across Twitter, Discord, and Telegram for early alpha signals.", price: 188, currency: "SKYCOIN", rating: 4.4, users: 1888, verified: true, status: "active", tags: ["Social", "Sentiment", "Alpha"], tasks: 18888, accuracy: 82, earnings: 1888 },
+];
+
 
 const AGENT_TEMPLATES = [
   {name:"TradeMaster Pro",type:"Trading",price:999,icon:"📈",desc:"Auto-trades based on HOPE AI signals with 94% accuracy"},

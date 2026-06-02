@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Settings as SettingsIcon, User, Bell, Shield, Palette, Globe, CreditCard, Cpu, Moon, Sun } from "lucide-react";
-import { useAppStore } from "@/store";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -14,7 +14,8 @@ const SECTIONS = [
 ];
 
 export default function Settings() {
-  const { currentUser } = useAppStore();
+  const { user: currentUser } = useAuth();
+  if (!currentUser) return null;
   const [section, setSection] = useState("account");
   const [darkMode, setDarkMode] = useState(true);
   const [lang, setLang] = useState("English");
@@ -40,7 +41,7 @@ export default function Settings() {
             <h3 className="text-[15px] font-bold text-white">Account Settings</h3>
             <div className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                {[{label:"Display Name",val:currentUser.name},{label:"Username",val:currentUser.handle},{label:"Email",val:"skyler@shadowchat.ai"},{label:"Phone",val:"+1 (555) 444-4444"}].map(f=>(
+                {[{label:"Display Name",val:currentUser.name},{label:"Username",val:(currentUser as any)?.username || 'user'},{label:"Email",val:"skyler@shadowchat.ai"},{label:"Phone",val:"+1 (555) 444-4444"}].map(f=>(
                   <div key={f.label}>
                     <label className="text-[10px] text-white/40 mb-1.5 block">{f.label}</label>
                     <input defaultValue={f.val} className="w-full bg-white/[0.05] border border-white/[0.08] rounded-lg px-3 py-2 text-[12px] text-white outline-none focus:border-cyan-500/40"/>

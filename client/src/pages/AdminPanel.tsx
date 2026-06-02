@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { Shield, Users, BarChart3, Settings, Zap, AlertTriangle, Database, Lock, Activity, TrendingUp } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { ANALYTICS_DATA, formatCurrency } from "@/lib/mockData";
+import { trpc } from "@/lib/trpc";
+const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const ANALYTICS_DATA = {
+  totalRevenue: 1_240_000,
+  totalUsers: 44444,
+  activeUsers: 8888,
+  totalTrades: 444444,
+  monthlyRevenue: Array.from({ length: 12 }, (_, i) => ({ month: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i], revenue: 50000 + i * 8000 })),
+  revenueStreams: [{ name: "Trading Fees", value: 480000, color: "#00e5ff" }, { name: "AI Subscriptions", value: 320000, color: "#9c27b0" }, { name: "NFT Royalties", value: 240000, color: "#4caf50" }, { name: "Staking", value: 200000, color: "#ff9800" }],
+};
+
 
 const TABS = ["Overview","Users","Tokenomics","Moderation","System","God Mode"];
 const USERS = [

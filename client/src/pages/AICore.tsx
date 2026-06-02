@@ -9,7 +9,7 @@ import {
   Brain, Send, Sparkles, BookOpen, Navigation, Activity, Shield,
   Mic, MicOff, Flame, Check, User, Loader2, Zap, Bot
 } from "lucide-react";
-import { useAppStore } from "@/store";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -83,7 +83,13 @@ async function callHopeAI(msgs: { role: string; content: string }[], system: str
 }
 
 export default function AICore() {
-  const { aiMode, setAIMode } = useAppStore();
+  const [aiMode, setAIMode] = useState({
+    active: true,
+    health: 98,
+    memoryUsed: 44,
+    tasksRunning: 7,
+    name: 'oracle',
+  });
   const [persona, setPersona] = useState(PERSONAS[0]);
   const [tab, setTab] = useState<"chat" | "outfits">("chat");
   const [messages, setMessages] = useState<Message[]>([{
@@ -172,17 +178,17 @@ export default function AICore() {
           <div className="text-[8px] font-mono text-white/25 tracking-widest mb-2">OPERATING MODE</div>
           <div className="grid grid-cols-2 gap-1">
             {MODES.map(m => (
-              <button key={m.id} onClick={() => { setAIMode(m.id as any); toast.success(`Mode: ${m.label}`); }}
+              <button key={m.id} onClick={() => { setAIMode(prev => ({ ...prev, name: m.id })); toast.success(`Mode: ${m.label}`); }}
                 className={cn(
                   "flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[10px] transition-all border",
-                  aiMode.active === m.id
+                  aiMode.name === m.id
                     ? "border-opacity-40 text-white"
                     : "border-transparent text-white/35 hover:text-white/60 hover:bg-white/[0.04]"
                 )}
-                style={aiMode.active === m.id ? { background: `${m.color}15`, borderColor: `${m.color}40`, color: m.color } : {}}>
+                style={aiMode.name === m.id ? { background: `${m.color}15`, borderColor: `${m.color}40`, color: m.color } : {}}>
                 <m.icon className="w-3 h-3 shrink-0" />
                 {m.label}
-                {aiMode.active === m.id && <span className="ml-auto w-1 h-1 rounded-full animate-pulse" style={{ background: m.color }} />}
+                {aiMode.name === m.id && <span className="ml-auto w-1 h-1 rounded-full animate-pulse" style={{ background: m.color }} />}
               </button>
             ))}
           </div>

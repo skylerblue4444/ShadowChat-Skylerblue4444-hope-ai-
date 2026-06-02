@@ -11,10 +11,25 @@ import {
   BarChart3, Bot, Vote, Lock, Cpu, Server, Globe, ArrowUpRight,
   AlertCircle, CheckCircle2, Clock, Coins, Flame, Star
 } from "lucide-react";
-import { useAppStore } from "@/store";
-import { ANALYTICS_DATA, TOKENS, formatCurrency, formatNumber, generateSparkline } from "@/lib/mockData";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+const formatCurrency = (n: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n);
+const formatNumber = (n: number) => new Intl.NumberFormat('en-US', { notation: 'compact' }).format(n);
 import { cn } from "@/lib/utils";
 import { useLivePrices } from "@/hooks/useLivePrice";
+
+const TOKENS = [
+  { symbol: "SKYCOIN", name: "ShadowChat Token", balance: 4444444, price: 0.044, change: 4.4, color: "#00e5ff" },
+  { symbol: "BTC", name: "Bitcoin", balance: 0.42, price: 67000, change: 2.1, color: "#f7931a" },
+  { symbol: "ETH", name: "Ethereum", balance: 4.4, price: 3200, change: -0.8, color: "#627eea" },
+];
+const generateSparkline = (points = 12, base = 100, range = 10) => Array.from({ length: points }, () => base + (Math.random() - 0.5) * range * 2);
+const ANALYTICS_DATA = {
+  monthlyRevenue: Array.from({ length: 12 }, (_, i) => ({ month: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i], revenue: 50000 + i * 5000, users: 1000 + i * 100 })),
+  revenueStreams: [{ name: "Trading Fees", value: 480000 }, { name: "AI Subscriptions", value: 320000 }, { name: "NFT Royalties", value: 240000 }],
+  moduleUsage: [{ name: "AI Core", usage: 88, color: "#00e5ff" }, { name: "Exchange", usage: 72, color: "#9c27b0" }, { name: "Social", usage: 65, color: "#4caf50" }],
+};
+
 
 const MODULES = [
   { path: "/feed",          icon: MessageSquare, label: "Social Feed",       color: "cyan",   stat: "24.8K posts/day" },
@@ -66,7 +81,10 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export default function Dashboard() {
-  const { systemStatus, aiMode, currentUser, notifications } = useAppStore();
+  const { user: currentUser } = useAuth();
+  const systemStatus = "OPERATIONAL";
+  const aiMode = "oracle";
+  const notifications: any[] = [];
   const { prices, loading: pricesLoading, lastUpdated } = useLivePrices();
   const getLivePrice = (id: string) => prices.find(p => p.id === id)?.current_price ?? 0;
   const getLiveChange = (id: string) => prices.find(p => p.id === id)?.price_change_percentage_24h ?? 0;
@@ -113,7 +131,7 @@ export default function Dashboard() {
         {[
           { label: "Active Users", value: formatNumber(liveStats.users), sub: "+12% vs yesterday", icon: Users, color: "cyan" },
           { label: "Transactions/s", value: liveStats.tps.toLocaleString(), sub: "Real-time TPS", icon: Zap, color: "gold" },
-          { label: "AI Queue Depth", value: liveStats.aiQueue, sub: `${aiMode.health}% health`, icon: Brain, color: "purple" },
+          { label: "AI Queue Depth", value: liveStats.aiQueue, sub: `${98}% health`, icon: Brain, color: "purple" },
           { label: "Feed Latency", value: `${liveStats.latency}ms`, sub: "P99 response", icon: Activity, color: "green" },
         ].map((s, i) => {
           const c = COLOR_MAP[s.color];
@@ -186,7 +204,7 @@ export default function Dashboard() {
             </PieChart>
           </ResponsiveContainer>
           <div className="space-y-1.5 mt-2">
-            {ANALYTICS_DATA.moduleUsage.map(m => (
+            {ANALYTICS_DATA.moduleUsage.map((m: any) => (
               <div key={m.name} className="flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full" style={{ background: m.color }} />
@@ -311,8 +329,8 @@ export default function Dashboard() {
               <Brain className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-white">HOPE AI — Active Mode: <span className="text-cyan-400 uppercase">{aiMode.active}</span></div>
-              <div className="text-[10px] text-white/40">Multi-agent orchestration · {aiMode.tasksRunning} tasks running · {aiMode.memoryUsed}% memory</div>
+              <div className="text-sm font-semibold text-white">HOPE AI — Active Mode: <span className="text-cyan-400 uppercase">{true}</span></div>
+              <div className="text-[10px] text-white/40">Multi-agent orchestration · {7} tasks running · {44}% memory</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -320,7 +338,7 @@ export default function Dashboard() {
               <Link key={mode} href="/ai-core">
                 <span className={cn(
                   "text-[10px] px-2.5 py-1 rounded border font-mono cursor-pointer transition-all uppercase tracking-wider",
-                  aiMode.active === mode
+                  mode === "learn"
                     ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/40"
                     : "bg-white/5 text-white/30 border-white/10 hover:border-white/20"
                 )}>

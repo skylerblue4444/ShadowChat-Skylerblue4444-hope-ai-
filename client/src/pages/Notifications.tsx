@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Bell, Heart, MessageCircle, TrendingUp, Shield, Vote, Check, Trash2 } from "lucide-react";
-import { useAppStore } from "@/store";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -14,10 +14,15 @@ const COLOR_MAP: Record<string, string> = {
 };
 
 export default function Notifications() {
-  const { notifications, markAllRead, unreadCount } = useAppStore();
+  const { data: notifData, refetch } = trpc.notifications.getAll.useQuery({ limit: 50 });
+  const markReadMutation = trpc.notifications.markRead.useMutation({ onSuccess: () => refetch() });
+  const markAllReadMutation = trpc.notifications.markRead.useMutation({ onSuccess: () => refetch() });
+  const notifications = Array.isArray(notifData) ? notifData : [];
+  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
+  const markAllRead = () => { notifications.forEach((n: any) => markReadMutation.mutate({ id: n.id })); };
   const [filter, setFilter] = useState("All");
   const FILTERS = ["All","Trades","Social","System","Governance"];
-  const filtered = notifications.filter(n => filter==="All" || n.type===filter.toLowerCase() || (filter==="Social"&&["like","message","match"].includes(n.type)));
+  const filtered = notifications.filter((n: any) => filter==="All" || n.type===filter.toLowerCase() || (filter==="Social"&&["like","message","match"].includes(n.type)));
   return (
     <div className="p-5 max-w-[800px] mx-auto space-y-4">
       <div className="flex items-center justify-between">
@@ -39,17 +44,17 @@ export default function Notifications() {
           const Icon = ICON_MAP[n.type] || Bell;
           const colorClass = COLOR_MAP[n.type] || "text-white/40 bg-white/[0.06]";
           return (
-            <div key={n.id} className={cn("flex items-start gap-3 p-4 rounded-xl border transition-all",n.read?"border-white/[0.06] bg-[oklch(0.11_0.01_265)]":"border-cyan-500/20 bg-cyan-500/5")}>
+            <div key={n.id} className={cn("flex items-start gap-3 p-4 rounded-xl border transition-all",n.isRead?"border-white/[0.06] bg-[oklch(0.11_0.01_265)]":"border-cyan-500/20 bg-cyan-500/5")}>
               <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5",colorClass)}>
                 <Icon className="w-4 h-4"/>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[12px] font-semibold text-white">{n.title}</span>
-                  {!n.read && <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0"/>}
+                  {!n.isRead && <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0"/>}
                 </div>
                 <p className="text-[11px] text-white/50 mt-0.5">{n.body}</p>
-                <div className="text-[10px] text-white/30 mt-1">{new Date(n.timestamp).toLocaleString()}</div>
+                <div className="text-[10px] text-white/30 mt-1">{new Date(n.createdAt).toLocaleString()}</div>
               </div>
             </div>
           );

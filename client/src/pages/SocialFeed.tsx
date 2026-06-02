@@ -10,9 +10,10 @@ import {
   TrendingUp, Flame, Sparkles, Image, Send, Hash, AtSign,
   Globe, Lock, Users, ArrowUpRight, Repeat2, Verified, Zap
 } from "lucide-react";
-import { FEED_POSTS } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
-import { useAppStore } from "@/store";
+import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 
 const TABS = ["For You", "Following", "Trending", "AI Ranked"] as const;
@@ -32,16 +33,15 @@ const SUGGESTED_USERS = [
   { name: "Shadow Witch",   handle: "@shadowwitch",   avatar: "🧙‍♀️", followers: "19.7K" },
 ];
 
-function PostCard({ post, index }: { post: typeof FEED_POSTS[0]; index: number }) {
+function PostCard({ post, index }: { post: any; index: number }) {
   const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(post.likes);
+  const [likes, setLikes] = useState(post.likes || 0);
   const [bookmarked, setBookmarked] = useState(false);
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState("");
-
   const handleLike = () => {
     setLiked(p => !p);
-    setLikes(p => p + (liked ? -1 : 1));
+    setLikes((p: number) => p + (liked ? -1 : 1));
   };
 
   const aiScore = 70 + (index * 7 % 30);
@@ -158,30 +158,27 @@ function PostCard({ post, index }: { post: typeof FEED_POSTS[0]; index: number }
 }
 
 export default function SocialFeed() {
-  const { currentUser } = useAppStore();
+  const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<typeof TABS[number]>("For You");
   const [postText, setPostText] = useState("");
-  const [posts, setPosts] = useState(FEED_POSTS);
   const [privacy, setPrivacy] = useState<"public" | "followers" | "private">("public");
 
+  const { data: feedData, isLoading, refetch } = trpc.social.getFeed.useQuery({ limit: 30, offset: 0 });
+  const posts = feedData?.posts || [];
+
+  const createPostMutation = trpc.social.createPost.useMutation({
+    onSuccess: () => { toast.success("Post published to feed!"); setPostText(""); refetch(); },
+    onError: (err) => toast.error(err.message),
+  });
+
   const handlePost = () => {
+    if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
     if (!postText.trim()) return;
-    const newPost = {
-      id: `p${Date.now()}`,
-      user: currentUser.name,
-      handle: `@${currentUser.name.toLowerCase().replace(" ", "")}`,
-      avatar: currentUser.name.slice(0, 2).toUpperCase(),
-      verified: true,
-      content: postText,
-      likes: 0, comments: 0, shares: 0,
-      time: "just now",
-      trending: false,
-      tags: postText.match(/#(\w+)/g) ?? [],
-    };
-    setPosts(p => [newPost, ...p]);
-    setPostText("");
-    toast.success("Post published to feed!");
+    const tags = postText.match(/#(\w+)/g)?.map(t => t.slice(1)) || [];
+    createPostMutation.mutate({ content: postText, tags });
   };
+
+  const currentUser = user ? { name: user.name || "User" } : { name: "Guest" };
 
   return (
     <div className="flex gap-5 p-5 max-w-[1400px]">
