@@ -47,6 +47,7 @@ import { enterpriseB2BRouter } from "./routers/enterpriseB2B";
 import { aiIDERouter } from "./routers/aiIDE";
 import { devWorkspaceRouter } from "./routers/devWorkspace";
 import { tokenomicsRouter } from "./routers/tokenomics";
+import { dataLakeRouter } from "./routers/dataLake";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -131,6 +132,9 @@ export const appRouter = router({
 
   // Tokenomics — Full Crypto Economy
   tokenomics: tokenomicsRouter,
+
+  // Data Lake — Enterprise Data Management
+  dataLake: dataLakeRouter,
 });
 
 export type AppRouter = typeof appRouter;

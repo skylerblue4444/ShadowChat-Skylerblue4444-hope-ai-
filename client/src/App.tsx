@@ -49,6 +49,10 @@ const Casino          = lazy(() => import("./pages/Casino"));
 const Gamification    = lazy(() => import("./pages/Gamification"));
 const CryptoSuite     = lazy(() => import("./pages/CryptoSuite"));
 const Tokenomics      = lazy(() => import("./pages/Tokenomics"));
+const Charity         = lazy(() => import("./pages/Charity"));
+const ICOPortal       = lazy(() => import("./pages/ICOPortal"));
+const AdultArea       = lazy(() => import("./pages/AdultArea"));
+const WisePayments    = lazy(() => import("./pages/WisePayments"));
 const NotFound        = lazy(() => import("./pages/NotFound"));
 
 function PageLoader() {
@@ -109,6 +113,10 @@ function Router() {
           <Route path="/gamification"   component={Gamification} />
           <Route path="/crypto"         component={CryptoSuite} />
           <Route path="/tokenomics"     component={Tokenomics} />
+          <Route path="/charity"        component={Charity} />
+          <Route path="/ico"            component={ICOPortal} />
+          <Route path="/adult"          component={AdultArea} />
+          <Route path="/wise-payments"  component={WisePayments} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>
