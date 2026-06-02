@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useLivePrices } from "@/hooks/useLivePrice";
+import { connectPhantom, connectEVMWallet, sendSKY444, getSKY444Balance, disconnectSolanaWallet } from "@/lib/web3";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar
@@ -85,8 +87,44 @@ export default function WalletPage() {
   const [stakePool, setStakePool] = useState(0);
   const [stakeAmount, setStakeAmount] = useState("");
   const [showQR, setShowQR] = useState(false);
-  const walletAddress = "0xSKY4444...SHADOW...HOPE";
-  const totalUSD = TOKENS.reduce((sum, t) => sum + t.balance * t.price, 0);
+  const { prices, refetch: refetchPrices } = useLivePrices();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletType, setWalletType] = useState<"evm" | "solana" | null>(null);
+  const [sky444OnChain, setSky444OnChain] = useState<string | null>(null);
+  const [connectingWallet, setConnectingWallet] = useState(false);
+  const displayAddress = walletAddress ?? "0xSKY4444...SHADOW...HOPE";
+  const getLivePrice = (symbol: string) => {
+    const idMap: Record<string,string> = { SKYCOIN: "skycoin", BTC: "bitcoin", ETH: "ethereum", SOL: "solana", DOGE: "dogecoin", USDT: "tether", TRUMP: "trump-2024" };
+    const id = idMap[symbol];
+    const found = prices.find(p => p.id === id);
+    return found?.current_price ?? 0;
+  };
+  const totalUSD = TOKENS.reduce((sum, t) => {
+    const lp = getLivePrice(t.symbol);
+    return sum + t.balance * (lp > 0 ? lp : t.price);
+  }, 0);
+  const handleConnectPhantom = async () => {
+    setConnectingWallet(true);
+    try {
+      const state = await connectPhantom();
+      setWalletAddress(state.address);
+      setWalletType("solana");
+      toast.success("Phantom connected!");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setConnectingWallet(false); }
+  };
+  const handleConnectMetaMask = async () => {
+    setConnectingWallet(true);
+    try {
+      const state = await connectEVMWallet();
+      setWalletAddress(state.address);
+      setWalletType("evm");
+      const bal = await getSKY444Balance(state.address!);
+      setSky444OnChain(bal);
+      toast.success("MetaMask connected!");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setConnectingWallet(false); }
+  };
 
   return (
     <div className="p-5 max-w-[1200px] mx-auto space-y-4">
@@ -96,9 +134,19 @@ export default function WalletPage() {
           <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'Syne, sans-serif' }}>Wallet & Finance Hub</h1>
           <p className="text-[11px] text-white/40">Multi-asset · Staking · DeFi · Cross-chain</p>
         </div>
-        <button onClick={() => toast.success("Portfolio synced!")} className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-cyan-400 transition-colors">
-          <RefreshCw className="w-3.5 h-3.5" /> Sync
-        </button>
+        <div className="flex items-center gap-2">
+          {!walletAddress ? (
+            <>
+              <button onClick={handleConnectPhantom} disabled={connectingWallet} className="px-3 py-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-300 text-[10px] font-semibold hover:bg-purple-500/20 transition-colors">Phantom</button>
+              <button onClick={handleConnectMetaMask} disabled={connectingWallet} className="px-3 py-1.5 rounded-lg border border-orange-500/30 bg-orange-500/10 text-orange-300 text-[10px] font-semibold hover:bg-orange-500/20 transition-colors">MetaMask</button>
+            </>
+          ) : (
+            <button onClick={() => { disconnectSolanaWallet(); setWalletAddress(null); setWalletType(null); toast.success("Disconnected"); }} className="px-3 py-1.5 rounded-lg border border-red-500/20 text-red-400/60 text-[10px] hover:text-red-400 transition-colors">Disconnect</button>
+          )}
+          <button onClick={() => { refetchPrices(); toast.success("Prices synced!"); }} className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-cyan-400 transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" /> Sync
+          </button>
+        </div>
       </div>
 
       {/* Total Balance Card */}
@@ -118,8 +166,8 @@ export default function WalletPage() {
           <div className="text-right">
             <div className="text-[10px] text-white/30 mb-1">Wallet Address</div>
             <div className="flex items-center gap-1.5">
-              <code className="text-[10px] text-white/50 font-mono">{walletAddress.slice(0, 18)}...</code>
-              <button onClick={() => { navigator.clipboard.writeText(walletAddress); toast.success("Copied!"); }} className="p-1 rounded hover:bg-white/10 text-white/30 hover:text-cyan-400 transition-colors">
+              <code className="text-[10px] text-white/50 font-mono">{displayAddress.slice(0, 18)}...</code>
+              <button onClick={() => { navigator.clipboard.writeText(displayAddress); toast.success("Copied!"); }} className="p-1 rounded hover:bg-white/10 text-white/30 hover:text-cyan-400 transition-colors">
                 <Copy className="w-3 h-3" />
               </button>
               <button onClick={() => setShowQR(p => !p)} className="p-1 rounded hover:bg-white/10 text-white/30 hover:text-cyan-400 transition-colors">
@@ -128,7 +176,7 @@ export default function WalletPage() {
             </div>
             {showQR && (
               <div className="mt-2 p-2 rounded-lg bg-white inline-block">
-                <QRCodeSVG value={walletAddress} size={80} />
+                <QRCodeSVG value={displayAddress} size={80} />
               </div>
             )}
           </div>
@@ -224,13 +272,13 @@ export default function WalletPage() {
         <div className="rounded-xl border border-white/[0.07] bg-[oklch(0.11_0.01_265)] p-5 flex flex-col items-center gap-4">
           <h2 className="text-[13px] font-semibold text-white self-start flex items-center gap-2"><ArrowDownLeft className="w-4 h-4 text-green-400" /> Receive Crypto</h2>
           <div className="p-4 rounded-xl bg-white">
-            <QRCodeSVG value={walletAddress} size={160} />
+            <QRCodeSVG value={displayAddress} size={160} />
           </div>
           <div className="text-center">
             <div className="text-[11px] text-white/40 mb-1">Your Wallet Address</div>
-            <code className="text-[12px] text-cyan-400 font-mono break-all">{walletAddress}</code>
+            <code className="text-[12px] text-cyan-400 font-mono break-all">{displayAddress}</code>
           </div>
-          <button onClick={() => { navigator.clipboard.writeText(walletAddress); toast.success("Address copied!"); }}
+          <button onClick={() => { navigator.clipboard.writeText(displayAddress); toast.success("Address copied!"); }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.05] border border-white/[0.08] text-white/60 hover:text-white text-[12px] transition-colors">
             <Copy className="w-3.5 h-3.5" /> Copy Address
           </button>

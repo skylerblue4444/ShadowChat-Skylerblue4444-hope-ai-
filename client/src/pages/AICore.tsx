@@ -28,6 +28,31 @@ interface Message {
   timestamp: Date;
 }
 
+// Real LLM API call using built-in Forge API
+async function callHopeAI(msgs: { role: string; content: string }[]): Promise<string | null> {
+  const apiKey = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
+  const apiUrl = import.meta.env.VITE_FRONTEND_FORGE_API_URL;
+  if (!apiKey || !apiUrl) return null;
+  try {
+    const res = await fetch(`${apiUrl}/chat/completions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are HOPE AI — the Hyper-Optimized Predictive Engine — core intelligence of ShadowChat Ultimate, built by Skyler Blue Spillers (Innovative Information Technology Resolutions LLC). Expert in: crypto trading (BTC/ETH/SOL/TRUMP/SKY444), DeFi, Web3, NFTs, DAO governance, social media, AI agents, security. SKY444: Max Supply 444,444,444, 2% burn on every transfer. Be direct, actionable, data-driven. Use markdown." },
+          ...msgs
+        ],
+        max_tokens: 800,
+        temperature: 0.7,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content ?? null;
+  } catch { return null; }
+}
+
 const HOPE_RESPONSES: Record<string, string> = {
   default: `**HOPE AI Analysis Complete** 🧠
 
@@ -69,15 +94,20 @@ export default function AICore() {
     const msg = text || input.trim();
     if (!msg) return;
     setInput("");
-    setMessages(p => [...p, { role: "user", content: msg, timestamp: new Date() }]);
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
-    setMessages(p => [...p, {
-      role: "assistant",
-      content: HOPE_RESPONSES.default,
-      timestamp: new Date(),
-    }]);
-    setLoading(false);
+    const userMsg = { role: "user" as const, content: msg, timestamp: new Date() };
+    setMessages(p => {
+      const updated = [...p, userMsg];
+      // Trigger async after state update
+      setTimeout(async () => {
+        setLoading(true);
+        const apiMsgs = updated.map(m => ({ role: m.role, content: m.content }));
+        const liveReply = await callHopeAI(apiMsgs);
+        const content = liveReply ?? HOPE_RESPONSES.default;
+        setMessages(prev => [...prev, { role: "assistant", content, timestamp: new Date() }]);
+        setLoading(false);
+      }, 0);
+      return updated;
+    });
   };
 
   return (

@@ -14,6 +14,7 @@ import {
 import { useAppStore } from "@/store";
 import { ANALYTICS_DATA, TOKENS, formatCurrency, formatNumber, generateSparkline } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
+import { useLivePrices } from "@/hooks/useLivePrice";
 
 const MODULES = [
   { path: "/feed",          icon: MessageSquare, label: "Social Feed",       color: "cyan",   stat: "24.8K posts/day" },
@@ -66,6 +67,9 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 
 export default function Dashboard() {
   const { systemStatus, aiMode, currentUser, notifications } = useAppStore();
+  const { prices, loading: pricesLoading, lastUpdated } = useLivePrices();
+  const getLivePrice = (id: string) => prices.find(p => p.id === id)?.current_price ?? 0;
+  const getLiveChange = (id: string) => prices.find(p => p.id === id)?.price_change_percentage_24h ?? 0;
   const [liveStats, setLiveStats] = useState({
     users: 24891, tps: 4420, latency: 12, aiQueue: 7
   });
@@ -207,20 +211,24 @@ export default function Dashboard() {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
           {TOKENS.map(t => {
-            const sparkData = generateSparkline(20, t.price, t.price * 0.03);
-            const isUp = t.change >= 0;
+            const idMap: Record<string,string> = { SKYCOIN: "skycoin", BTC: "bitcoin", ETH: "ethereum", SOL: "solana", DOGE: "dogecoin", USDT: "tether", TRUMP: "trump-2024" };
+            const livePrice = getLivePrice(idMap[t.symbol] ?? "") || t.price;
+            const liveChange = getLiveChange(idMap[t.symbol] ?? "") || t.change;
+            const sparkData = generateSparkline(20, livePrice, livePrice * 0.03);
+            const isUp = liveChange >= 0;
             return (
               <div key={t.symbol} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 hover:border-white/[0.12] transition-colors">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] font-bold text-white/70 font-mono">{t.symbol}</span>
                   <span className={cn("text-[9px] font-mono", isUp ? "text-green-400" : "text-red-400")}>
-                    {isUp ? "+" : ""}{t.change}%
+                    {isUp ? "+" : ""}{liveChange.toFixed(2)}%
                   </span>
                 </div>
                 <Sparkline data={sparkData} color={t.color} />
                 <div className="mt-1.5">
                   <div className="text-[11px] font-bold text-white font-mono">
-                    ${t.price >= 1000 ? (t.price/1000).toFixed(1)+"K" : t.price.toFixed(t.price < 1 ? 4 : 2)}
+                    ${livePrice >= 1000 ? (livePrice/1000).toFixed(1)+"K" : livePrice.toFixed(livePrice < 1 ? 4 : 2)}
+                    {pricesLoading && <span className="text-[8px] text-white/20 ml-1">...</span>}
                   </div>
                   <div className="text-[9px] text-white/30 mt-0.5">
                     {t.balance >= 1000000 ? (t.balance/1000000).toFixed(2)+"M" : t.balance >= 1000 ? (t.balance/1000).toFixed(1)+"K" : t.balance.toFixed(2)} held
