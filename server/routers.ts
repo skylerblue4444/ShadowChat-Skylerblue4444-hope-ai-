@@ -32,6 +32,15 @@ import { sandboxRouter } from "./routers/sandbox";
 import { moderationRouter } from "./routers/moderation";
 import { cryptoRouter } from "./routers/crypto";
 import { aiEngineerRouter } from "./routers/aiEngineer";
+import { casinoRouter } from "./routers/casino";
+import { charityRouter } from "./routers/charity";
+import { icoRouter } from "./routers/ico";
+import { adultAreaRouter, greyToolsRouter } from "./routers/adultArea";
+import { wisePaymentsRouter } from "./routers/wisePayments";
+import { knowledgeGraphRouter } from "./routers/knowledgeGraph";
+import { aiMemoryRouter } from "./routers/aiMemory";
+import { agentOSRouter } from "./routers/agentOS";
+import { organizationRouter } from "./routers/organization";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -84,6 +93,26 @@ export const appRouter = router({
   // Enterprise Crypto
   crypto: cryptoRouter,
   aiEngineer: aiEngineerRouter,
+
+  // Casino & Entertainment
+  casino: casinoRouter,
+  charity: charityRouter,
+
+  // ICO & Investment
+  ico: icoRouter,
+
+  // Adult & Grey Area
+  adultArea: adultAreaRouter,
+  greyTools: greyToolsRouter,
+
+  // International Payments
+  wisePayments: wisePaymentsRouter,
+
+  // AI Operating System Layer
+  knowledgeGraph: knowledgeGraphRouter,
+  aiMemory: aiMemoryRouter,
+  agentOS: agentOSRouter,
+  organization: organizationRouter,
 });
 
 export type AppRouter = typeof appRouter;
